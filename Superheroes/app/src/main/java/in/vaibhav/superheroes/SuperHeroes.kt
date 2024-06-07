@@ -33,6 +33,7 @@ fun HeroCard(hero: Hero) {
             .fillMaxWidth()
             .padding(16.dp)
             .clip(MaterialTheme.shapes.medium)
+            .height(200.dp)
     ) {
         Row(
             modifier = Modifier
