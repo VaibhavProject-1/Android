@@ -25,7 +25,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SuperheroesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize().height(48.dp)) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize().height(48.dp), topBar = {
+                    SuperHeroesTop()
+                }) { innerPadding ->
                     SuperHeroes(
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -33,6 +35,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun SuperHeroesTop(modifier: Modifier = Modifier.height(48.dp)){
+
 }
 
 @Composable

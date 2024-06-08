@@ -22,9 +22,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import `in`.vaibhav.superheroes.model.Hero
 
+
+val cabin = FontFamily(
+    Font(R.font.cabin_bold, FontWeight.Bold),
+    Font(R.font.cabin_regular, FontWeight.Normal),
+)
 
 @Composable
 fun HeroCard(hero: Hero) {
@@ -33,7 +42,7 @@ fun HeroCard(hero: Hero) {
             .fillMaxWidth()
             .padding(16.dp)
             .clip(MaterialTheme.shapes.medium)
-            .height(200.dp)
+            .height(150.dp)
     ) {
         Row(
             modifier = Modifier
@@ -45,7 +54,7 @@ fun HeroCard(hero: Hero) {
                 painter = painterResource(id = hero.imageRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .height(150.dp)
+                    .height(120.dp)
                     .width(120.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
@@ -55,9 +64,9 @@ fun HeroCard(hero: Hero) {
 
             // Hero Name and Description (Right Side)
             Column {
-                Text(text = stringResource(id = hero.nameRes), style = MaterialTheme.typography.displaySmall)
+                Text(text = stringResource(id = hero.nameRes), fontSize = 28.sp, fontFamily = cabin, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = stringResource(id = hero.descriptionRes), style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(id = hero.descriptionRes), fontSize = 15.sp, fontFamily = cabin, fontWeight = FontWeight.Normal)
             }
         }
     }
