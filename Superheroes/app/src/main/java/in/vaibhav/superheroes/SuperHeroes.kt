@@ -64,9 +64,9 @@ fun HeroCard(hero: Hero) {
 
             // Hero Name and Description (Right Side)
             Column {
-                Text(text = stringResource(id = hero.nameRes), fontSize = 28.sp, fontFamily = cabin, fontWeight = FontWeight.Bold)
+                Text(text = stringResource(id = hero.nameRes), style = MaterialTheme.typography.displayMedium)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = stringResource(id = hero.descriptionRes), fontSize = 15.sp, fontFamily = cabin, fontWeight = FontWeight.Normal)
+                Text(text = stringResource(id = hero.descriptionRes), style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
