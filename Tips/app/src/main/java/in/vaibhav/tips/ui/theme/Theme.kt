@@ -36,7 +36,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun TipsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -45,9 +44,8 @@ fun TipsTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> darkColorScheme(primary = GrapePurple, secondary = SoftGrey, tertiary = Pink)
+        else -> lightColorScheme(primary = BerryPurple, secondary = DarkGrey, tertiary = DeepPink)
     }
 
     MaterialTheme(
