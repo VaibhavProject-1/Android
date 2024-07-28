@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     //kotlin("kapt") version "2.0.0"
-    id("com.google.dagger.hilt.android") version "2.44" apply false
+    id("com.google.dagger.hilt.android") version "2.51.1" apply false
     id ("kotlin-kapt")
 }
 
@@ -71,17 +71,19 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // retrofit
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("com.squareup.retrofit2:adapter-rxjava2:2.9.0")
-    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.adapter.rxjava2)
+    implementation (libs.logging.interceptor)
 
     // coil
-    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation(libs.coil.compose)
 
 
     // Dagger Hilt
-    implementation ("com.google.dagger:hilt-android:2.44")
-    kapt ("com.android.databinding:compiler:3.1.4")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation (libs.hilt.android.v2511)
+    annotationProcessor (libs.hilt.compiler)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
 }
