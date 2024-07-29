@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     //kotlin("kapt") version "2.0.0"
-    id("com.google.dagger.hilt.android") version "2.51.1" apply false
+    id("com.google.dagger.hilt.android")
     id ("kotlin-kapt")
 }
 
@@ -81,9 +81,8 @@ dependencies {
 
 
     // Dagger Hilt
-    implementation (libs.hilt.android.v2511)
-    annotationProcessor (libs.hilt.compiler)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
 }
