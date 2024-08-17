@@ -4,7 +4,7 @@ import `in`.vaibhav.tmdb.model.MovieListResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import vaibhav.tmdb.model.details.MovieDetails
+import  `in`.vaibhav.tmdb.model.details.MovieDetails
 
 interface ApiService {
 

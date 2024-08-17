@@ -2,7 +2,7 @@ package `in`.vaibhav.tmdb.data
 
 import `in`.vaibhav.tmdb.common.Resource
 import `in`.vaibhav.tmdb.model.Movie
-import vaibhav.tmdb.model.details.MovieDetails
+import `in`.vaibhav.tmdb.model.details.MovieDetails
 
 class MovieRepository(private val movieDatasource: MovieDatasource) {
 

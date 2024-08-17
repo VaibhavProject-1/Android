@@ -1,4 +1,4 @@
-package in.vaibhav.tmdb.model.details
+package `in`.vaibhav.tmdb.model.details
 
 data class MovieDetails(
     val adult: Boolean,

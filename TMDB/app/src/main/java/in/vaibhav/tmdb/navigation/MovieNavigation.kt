@@ -25,11 +25,9 @@ fun MovieNavigation(modifier: Modifier = Modifier, navHostController: NavHostCon
 
         }
 
-        composable(MovieNavigationItem.MovieDetails.route + "/{id}"){
-
+        composable(MovieNavigationItem.MovieDetails.route + "/{id}") {
             val id = it.arguments?.getString("id")
-            Log.d(TAG,"MovieNavigation: ${id}")
-            MovieDetailsScreen()
+            MovieDetailsScreen(movieId = id ?: "")
         }
     }
 }
