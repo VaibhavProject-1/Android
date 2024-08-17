@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import `in`.vaibhav.tmdb.navigation.MovieNavigation
 import `in`.vaibhav.tmdb.ui.theme.TMDBTheme
 import `in`.vaibhav.tmdb.ui_layer.MovieListScreen
 
@@ -20,7 +22,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             TMDBTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MovieListScreen(paddingValues = innerPadding)
+
+                    val navController = rememberNavController()
+                    MovieNavigation(navHostController = navController, paddingValues = innerPadding )
                 }
             }
         }
