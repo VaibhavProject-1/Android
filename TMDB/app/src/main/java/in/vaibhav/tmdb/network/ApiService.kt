@@ -2,7 +2,9 @@ package `in`.vaibhav.tmdb.network
 
 import `in`.vaibhav.tmdb.model.MovieListResponse
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
+import vaibhav.tmdb.model.details.MovieDetails
 
 interface ApiService {
 
@@ -14,4 +16,10 @@ interface ApiService {
     suspend fun getMovieList(
         @Query("api_key") apiKey: String
     ): MovieListResponse
+
+    @GET("3/movie/{id}")
+    suspend fun getMovieDetails(
+        @Path("id") id: String,
+        @Query("api_key") apiKey: String,
+    ): MovieDetails
 }
