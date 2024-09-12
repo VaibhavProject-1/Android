@@ -21,29 +21,27 @@ import `in`.vaibhav.tmdb.model.details.MovieDetails
 
 
 @Composable
-fun MovieDetailsScreen(modifier: Modifier = Modifier, viewModel: MovieDetailsViewModel = hiltViewModel(),movieId: String ) {
-
+fun MovieDetailsScreen(modifier: Modifier = Modifier, viewModel: MovieDetailsViewModel = hiltViewModel(), movieId: String ) {
     val result = viewModel.movieDetails.value
 
-    if(result.isLoading){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when {
+        result.isLoading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        result.error.isNotBlank() -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = result.error)
+            }
+        }
+        result.data != null -> {
+            MovieDetailsShow(movie = result.data!!)
+        }
+        else -> {
+            // Handle unexpected state, if needed
         }
     }
-    if(result.error.isNotBlank()){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = result.error)
-        }
-    }
-
-
-    else {
-        result.data?.let { movie: MovieDetails ->
-
-            MovieDetailsShow(movie = movie)
-        }
-
-}
 }
 
 @Composable
@@ -58,10 +56,10 @@ fun MovieDetailsShow(movie: MovieDetails) {
             contentScale = ContentScale.FillBounds
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = movie.original_title, style = MaterialTheme.typography.bodyLarge)
+        Text(text = movie.original_title, style = MaterialTheme.typography.displayLarge)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = movie.tagline, style = MaterialTheme.typography.displayMedium)
+        Text(text = movie.tagline, style = MaterialTheme.typography.displaySmall)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = movie.overview, style = MaterialTheme.typography.titleSmall)
+        Text(text = movie.overview, style = MaterialTheme.typography.titleMedium)
     }
 }

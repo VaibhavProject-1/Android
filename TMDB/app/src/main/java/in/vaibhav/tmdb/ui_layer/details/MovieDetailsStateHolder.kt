@@ -1,6 +1,6 @@
 package `in`.vaibhav.tmdb.ui_layer.details
 
-import vaibhav.tmdb.model.details.MovieDetails
+import `in`.vaibhav.tmdb.model.details.MovieDetails
 import java.lang.Error
 
 data class MovieDetailsStateHolder(

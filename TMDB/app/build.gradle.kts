@@ -1,14 +1,15 @@
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.android.application") version "8.1.4" apply true
     alias(libs.plugins.jetbrains.kotlin.android)
-    //kotlin("kapt") version "2.0.0"
+    //kotlin("kapt") version "2.0.20"
     id("com.google.dagger.hilt.android")
     id ("kotlin-kapt")
 }
 
 android {
-    namespace = "in.vaibhav.tmdb"
+
     compileSdk = 34
+    namespace = "in.vaibhav.tmdb"
 
     defaultConfig {
         applicationId = "in.vaibhav.tmdb"
@@ -81,9 +82,9 @@ dependencies {
 
 
     // Dagger Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation (libs.hilt.android)
+    kapt (libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     val navversion = "2.7.7"
 
