@@ -2,6 +2,7 @@
 
 package com.vaibhav.city.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,23 +11,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.vaibhav.city.data.DataProvider
 import com.vaibhav.city.model.Category
 import com.vaibhav.city.model.Recommendation
+import com.vaibhav.city.viewmodel.CityViewModel
 
 @Composable
 fun CombinedCategoriesAndRecommendations(
     navController: NavHostController,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    cityViewModel: CityViewModel = viewModel()
 ) {
-    var selectedCategory by remember { mutableStateOf(DataProvider.categories.firstOrNull()) }
+    // Get the selected category from the ViewModel
+    val selectedCategory = cityViewModel.selectedCategory
 
     Row(
         modifier = Modifier
@@ -42,8 +47,7 @@ fun CombinedCategoriesAndRecommendations(
             LazyColumn {
                 items(DataProvider.categories) { category ->
                     CombinedCategoryCard(category) {
-                        // Update the selected category
-                        selectedCategory = category
+                        cityViewModel.updateSelectedCategory(category)
                     }
                 }
             }
@@ -58,17 +62,16 @@ fun CombinedCategoriesAndRecommendations(
                 .padding(16.dp)
         ) {
             selectedCategory?.let { category ->
-                val recommendations = DataProvider.recommendations[category.id] ?: emptyList()
+                val recommendations = cityViewModel.getRecommendations()
                 LazyColumn {
                     items(recommendations) { recommendation ->
                         CombinedRecommendationCard(recommendation) {
-                            // Navigate to recommendation details
+                            Log.d("NavAction", "Navigating to recommendationDetails/${recommendation.id}")
                             navController.navigate("recommendationDetails/${recommendation.id}")
                         }
                     }
                 }
             } ?: run {
-                // Placeholder message
                 Text(
                     text = "Please select a category to view recommendations.",
                     style = MaterialTheme.typography.bodyLarge,
