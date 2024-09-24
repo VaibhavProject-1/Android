@@ -1,9 +1,11 @@
 package com.vaibhav.city.model
 
-import androidx.annotation.DrawableRes
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Category(
     val id: Int,
     val name: String,
-    @DrawableRes val imageResId: Int
-)
+    val imageResId: Int
+) : Parcelable

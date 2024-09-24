@@ -21,7 +21,8 @@ import com.vaibhav.city.data.DataProvider
 fun RecommendationDetailsScreen(
     recommendationId: Int,
     navController: NavHostController,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+
 ) {
     val recommendation = DataProvider.recommendations.values.flatten()
         .find { it.id == recommendationId }

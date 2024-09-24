@@ -25,11 +25,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.vaibhav.city.data.DataProvider
 import com.vaibhav.city.model.Category
+import com.vaibhav.city.viewmodel.CityViewModel
 
 @Composable
 fun CategoryScreen(
     navController: NavHostController,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    cityViewModel: CityViewModel
 ) {
     LazyColumn(
         contentPadding = contentPadding,

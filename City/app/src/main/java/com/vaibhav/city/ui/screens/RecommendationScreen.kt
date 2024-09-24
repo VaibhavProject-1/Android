@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.vaibhav.city.data.DataProvider
 import com.vaibhav.city.model.Recommendation
+import com.vaibhav.city.viewmodel.CityViewModel
 
 @Composable
 fun RecommendationScreen(
     categoryId: Int,
     navController: NavHostController,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    cityViewModel: CityViewModel
 ) {
     val recommendations = DataProvider.recommendations[categoryId] ?: emptyList()
     LazyColumn(
