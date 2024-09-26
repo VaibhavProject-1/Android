@@ -79,6 +79,17 @@ fun RaceTrackerApp() {
             raceInProgress = false
         }
     }
+
+//    if (raceInProgress) {
+//        LaunchedEffect(playerOne, playerTwo) {
+//            coroutineScope {
+//                launch { playerOne.run() }
+//                launch { playerTwo.run() }
+//            }
+//            raceInProgress = false
+//        }
+//    }
+
     RaceTrackerScreen(
         playerOne = playerOne,
         playerTwo = playerTwo,
