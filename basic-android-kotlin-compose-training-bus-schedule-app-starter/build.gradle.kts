@@ -17,6 +17,7 @@
 buildscript {
     extra.apply {
         set("nav_version", "2.5.3")
+        set("room_version", "2.6.0")
     }
 }
 plugins {
