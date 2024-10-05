@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp") version "2.0.20-1.0.24"
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -32,6 +34,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        // Enable support for the Java 8+ API desugaring for APIs like java.time
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -59,6 +63,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.datastore.preferences.core.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +73,19 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation (libs.androidx.datastore.preferences)
+
+    // Lifecycle ViewModel integration with Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation (libs.androidx.room.ktx)
+    implementation(libs.androidx.room.common)
+
+    implementation(libs.dagger.compiler.v2511)
+    ksp(libs.dagger.compiler)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    ksp(libs.androidx.room.compiler)
+
+
 }
