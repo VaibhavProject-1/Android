@@ -8,10 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,10 +28,9 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
     val airports by viewModel.searchAirports(query).collectAsState(emptyList())
     val favoriteRoutes by viewModel.favoriteRoutes.collectAsState(emptySet()) // Collect favorites as Set<String>
 
-    // Convert Set<String> to List<String> (favorites are stored in DataStore in the form of "IATA -> Name")
     val favoriteRouteStrings = favoriteRoutes.toList()
 
-    val context = LocalContext.current // Context for showing Toast messages
+    val context = LocalContext.current // Context for Toast messages
 
     Scaffold(
         topBar = {
@@ -62,7 +57,15 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
 
                 if (query.isEmpty()) {
                     Text("Favorite Routes", style = MaterialTheme.typography.titleLarge)
-                    FavoriteRoutesList(favoriteRouteStrings) // Pass List<String> as favorites
+                    FavoriteRoutesList(
+                        favorites = favoriteRouteStrings,
+                        onRemoveFavoriteClick = { favorite ->
+                            // Parse the IATA code from the favorite string
+                            val (iataCode, name) = favorite.split(" -> ")
+                            viewModel.deleteFavoriteRoute(iataCode, name)
+                            Toast.makeText(context, "$name removed from favorites", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 } else {
                     Text("Search Results", style = MaterialTheme.typography.titleLarge)
                     AirportsList(
@@ -85,6 +88,7 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
         }
     )
 }
+
 
 
 
@@ -152,7 +156,11 @@ fun AirportsList(
 
 
 @Composable
-fun FavoriteRoutesList(favorites: List<String>, modifier: Modifier = Modifier) {
+fun FavoriteRoutesList(
+    favorites: List<String>,
+    onRemoveFavoriteClick: (String) -> Unit, // Pass a callback to remove the favorite
+    modifier: Modifier = Modifier
+) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(favorites) { favorite ->
             Card(
@@ -161,15 +169,29 @@ fun FavoriteRoutesList(favorites: List<String>, modifier: Modifier = Modifier) {
                     .padding(vertical = 8.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(favorite) // The favorite is in the format "IATA -> Name"
+                    // Text for the favorite route
+                    Text(favorite)
+
+                    // Favorite Icon to remove the route from favorites
+                    IconButton(onClick = { onRemoveFavoriteClick(favorite) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = "Remove from favorites",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 
 
 
