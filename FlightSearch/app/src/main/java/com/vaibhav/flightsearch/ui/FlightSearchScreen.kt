@@ -25,7 +25,8 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
     val viewModel: FlightViewModel = viewModel(factory = FlightViewModelFactory(flightDao, dataStoreManager))
     var query by remember { mutableStateOf("") }
     val airports by viewModel.searchAirports(query).collectAsState(emptyList())
-    val favorites by viewModel.favoriteRoutes.collectAsState(emptyList()) // List<Favorite>
+    val favoriteRoutes by viewModel.favoriteRoutes.collectAsState(emptySet()) // Now Set<String>
+
     val context = LocalContext.current // Context for Toast
 
     Scaffold(
@@ -53,14 +54,15 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
 
                 if (query.isEmpty()) {
                     Text("Favorite Routes", style = MaterialTheme.typography.titleLarge)
-                    FavoriteRoutesList(favorites) // Pass List<Favorite>
+                    FavoriteRoutesList(favoriteRoutes.toList()) // Convert Set<String> to List<String>
                 } else {
                     Text("Search Results", style = MaterialTheme.typography.titleLarge)
                     AirportsList(
                         airports = airports,
                         onAirportClick = { /* Handle airport selection */ },
                         onFavoriteClick = { airport ->
-                            val isFavorite = favorites.any { it.departureCode == airport.iataCode }
+                            val route = "${airport.iataCode} -> ${airport.name}"
+                            val isFavorite = favoriteRoutes.contains(route)
                             if (isFavorite) {
                                 viewModel.deleteFavoriteRoute(airport.iataCode, airport.name)
                                 Toast.makeText(context, "${airport.name} removed from favorites", Toast.LENGTH_SHORT).show()
@@ -69,7 +71,7 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
                                 Toast.makeText(context, "${airport.name} added to favorites", Toast.LENGTH_SHORT).show()
                             }
                         },
-                        favorites = favorites
+                        favorites = favoriteRoutes.toList() // Pass as List<String>
                     )
                 }
             }
@@ -82,11 +84,13 @@ fun AirportsList(
     airports: List<Airport>,
     onAirportClick: (Airport) -> Unit,
     onFavoriteClick: (Airport) -> Unit,
-    favorites: List<Favorite>
+    favorites: List<String> // List<String> of favorite routes
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(airports) { airport ->
-            val isFavorite = favorites.any { it.departureCode == airport.iataCode }
+            // Match airport's IATA code with the favorite routes
+            val route = "${airport.iataCode} -> ${airport.name}"
+            val isFavorite = favorites.contains(route)
 
             Card(
                 onClick = { onAirportClick(airport) },
@@ -105,6 +109,7 @@ fun AirportsList(
                         Text("${airport.passengers} passengers/year", style = MaterialTheme.typography.bodyMedium)
                     }
 
+                    // Show the appropriate icon depending on whether the airport is a favorite
                     IconButton(onClick = { onFavoriteClick(airport) }) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
@@ -118,7 +123,7 @@ fun AirportsList(
 }
 
 @Composable
-fun FavoriteRoutesList(favorites: List<Favorite>, modifier: Modifier = Modifier) {
+fun FavoriteRoutesList(favorites: List<String>, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(favorites) { favorite ->
             Card(
@@ -130,12 +135,13 @@ fun FavoriteRoutesList(favorites: List<Favorite>, modifier: Modifier = Modifier)
                     modifier = Modifier.padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("${favorite.departureCode} -> ${favorite.destinationCode}")
+                    Text(favorite)
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
