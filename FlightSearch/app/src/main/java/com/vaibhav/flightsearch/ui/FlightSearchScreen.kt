@@ -1,5 +1,6 @@
 package com.vaibhav.flightsearch.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,7 +25,8 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
     val viewModel: FlightViewModel = viewModel(factory = FlightViewModelFactory(flightDao, dataStoreManager))
     var query by remember { mutableStateOf("") }
     val airports by viewModel.searchAirports(query).collectAsState(emptyList())
-    val favorites by viewModel.favoriteRoutes.collectAsState(emptyList()) // Room favorites
+    val favorites by viewModel.favoriteRoutes.collectAsState(emptyList()) // List<Favorite>
+    val context = LocalContext.current // Context for Toast
 
     Scaffold(
         topBar = {
@@ -50,7 +53,7 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
 
                 if (query.isEmpty()) {
                     Text("Favorite Routes", style = MaterialTheme.typography.titleLarge)
-                    FavoriteRoutesList(favorites)
+                    FavoriteRoutesList(favorites) // Pass List<Favorite>
                 } else {
                     Text("Search Results", style = MaterialTheme.typography.titleLarge)
                     AirportsList(
@@ -60,8 +63,10 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
                             val isFavorite = favorites.any { it.departureCode == airport.iataCode }
                             if (isFavorite) {
                                 viewModel.deleteFavoriteRoute(airport.iataCode, airport.name)
+                                Toast.makeText(context, "${airport.name} removed from favorites", Toast.LENGTH_SHORT).show()
                             } else {
                                 viewModel.saveFavoriteRoute(airport.iataCode, airport.name)
+                                Toast.makeText(context, "${airport.name} added to favorites", Toast.LENGTH_SHORT).show()
                             }
                         },
                         favorites = favorites
@@ -71,7 +76,6 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
         }
     )
 }
-
 
 @Composable
 fun AirportsList(
@@ -113,9 +117,6 @@ fun AirportsList(
     }
 }
 
-
-
-
 @Composable
 fun FavoriteRoutesList(favorites: List<Favorite>, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
@@ -135,9 +136,6 @@ fun FavoriteRoutesList(favorites: List<Favorite>, modifier: Modifier = Modifier)
         }
     }
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable

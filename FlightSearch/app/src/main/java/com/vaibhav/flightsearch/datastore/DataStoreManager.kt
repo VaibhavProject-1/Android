@@ -30,11 +30,13 @@ class DataStoreManager(private val context: Context) {
         preferences[SEARCH_QUERY_KEY]
     }
 
-    // Save favorite route
+    // Save favorite route without allowing duplicates
     suspend fun saveFavoriteRoute(route: String) {
         context.dataStore.edit { preferences ->
             val currentFavorites = preferences[FAVORITES_KEY] ?: emptySet()
-            preferences[FAVORITES_KEY] = currentFavorites + route
+            if (!currentFavorites.contains(route)) { // Check if the route already exists
+                preferences[FAVORITES_KEY] = currentFavorites + route
+            }
         }
     }
 
