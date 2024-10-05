@@ -1,21 +1,26 @@
 package com.vaibhav.flightsearch.ui
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vaibhav.flightsearch.data.Airport
-import com.vaibhav.flightsearch.data.Favorite
 import com.vaibhav.flightsearch.data.FlightDao
 import com.vaibhav.flightsearch.datastore.DataStoreManager
 
@@ -25,9 +30,12 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
     val viewModel: FlightViewModel = viewModel(factory = FlightViewModelFactory(flightDao, dataStoreManager))
     var query by remember { mutableStateOf("") }
     val airports by viewModel.searchAirports(query).collectAsState(emptyList())
-    val favoriteRoutes by viewModel.favoriteRoutes.collectAsState(emptySet()) // Now Set<String>
+    val favoriteRoutes by viewModel.favoriteRoutes.collectAsState(emptySet()) // Collect favorites as Set<String>
 
-    val context = LocalContext.current // Context for Toast
+    // Convert Set<String> to List<String> (favorites are stored in DataStore in the form of "IATA -> Name")
+    val favoriteRouteStrings = favoriteRoutes.toList()
+
+    val context = LocalContext.current // Context for showing Toast messages
 
     Scaffold(
         topBar = {
@@ -54,15 +62,14 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
 
                 if (query.isEmpty()) {
                     Text("Favorite Routes", style = MaterialTheme.typography.titleLarge)
-                    FavoriteRoutesList(favoriteRoutes.toList()) // Convert Set<String> to List<String>
+                    FavoriteRoutesList(favoriteRouteStrings) // Pass List<String> as favorites
                 } else {
                     Text("Search Results", style = MaterialTheme.typography.titleLarge)
                     AirportsList(
                         airports = airports,
                         onAirportClick = { /* Handle airport selection */ },
                         onFavoriteClick = { airport ->
-                            val route = "${airport.iataCode} -> ${airport.name}"
-                            val isFavorite = favoriteRoutes.contains(route)
+                            val isFavorite = favoriteRouteStrings.any { it.startsWith(airport.iataCode) }
                             if (isFavorite) {
                                 viewModel.deleteFavoriteRoute(airport.iataCode, airport.name)
                                 Toast.makeText(context, "${airport.name} removed from favorites", Toast.LENGTH_SHORT).show()
@@ -71,7 +78,7 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
                                 Toast.makeText(context, "${airport.name} added to favorites", Toast.LENGTH_SHORT).show()
                             }
                         },
-                        favorites = favoriteRoutes.toList() // Pass as List<String>
+                        favorites = favoriteRouteStrings // Pass the converted List<String>
                     )
                 }
             }
@@ -79,18 +86,26 @@ fun FlightSearchScreen(flightDao: FlightDao, dataStoreManager: DataStoreManager)
     )
 }
 
+
+
+
 @Composable
 fun AirportsList(
     airports: List<Airport>,
     onAirportClick: (Airport) -> Unit,
     onFavoriteClick: (Airport) -> Unit,
-    favorites: List<String> // List<String> of favorite routes
+    favorites: List<String> // List of favorite airport codes
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(airports) { airport ->
-            // Match airport's IATA code with the favorite routes
-            val route = "${airport.iataCode} -> ${airport.name}"
-            val isFavorite = favorites.contains(route)
+            val airportIataCode = airport.iataCode.trim().lowercase()
+            val isFavorite = favorites.any { favorite ->
+                val favoriteIataCode = favorite.split(" -> ")[0].trim().lowercase()
+                favoriteIataCode == airportIataCode
+            }
+
+            // Log for debugging
+            Log.d("AirportsList", "Airport: ${airport.iataCode}, isFavorite: $isFavorite")
 
             Card(
                 onClick = { onAirportClick(airport) },
@@ -102,18 +117,26 @@ fun AirportsList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically // Ensure center alignment
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text("${airport.iataCode} - ${airport.name}", style = MaterialTheme.typography.bodyLarge)
                         Text("${airport.passengers} passengers/year", style = MaterialTheme.typography.bodyMedium)
                     }
 
-                    // Show the appropriate icon depending on whether the airport is a favorite
+                    // Spacer to ensure consistent padding between text and star
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // Favorite Icon (Star) with fixed size for consistency
                     IconButton(onClick = { onFavoriteClick(airport) }) {
                         Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -121,6 +144,12 @@ fun AirportsList(
         }
     }
 }
+
+
+
+
+
+
 
 @Composable
 fun FavoriteRoutesList(favorites: List<String>, modifier: Modifier = Modifier) {
@@ -135,12 +164,13 @@ fun FavoriteRoutesList(favorites: List<String>, modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(favorite)
+                    Text(favorite) // The favorite is in the format "IATA -> Name"
                 }
             }
         }
     }
 }
+
 
 
 @Preview(showBackground = true)

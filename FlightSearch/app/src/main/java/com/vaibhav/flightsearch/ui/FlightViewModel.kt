@@ -53,26 +53,21 @@ class FlightViewModel(
     // Get favorite routes saved by the user (from Room)
     val favoriteRoutesFromDb: Flow<List<Favorite>> = flightDao.getFavoriteRoutes()
 
-    // Convert the List<Favorite> from Room into Set<String> for comparison
-    val favoriteRoutes: Flow<Set<String>> = favoriteRoutesFromDb.map { favorites ->
-        favorites.map { "${it.departureCode} -> ${it.destinationCode}" }.toSet()
-    }
+    // Get favorite routes saved by the user (from Room or DataStore)
+    val favoriteRoutes: Flow<Set<String>> = dataStoreManager.favoriteRoutes
 
-
-    // Save a favorite route into Room and DataStore
+    // Save a favorite route into DataStore
     fun saveFavoriteRoute(departureCode: String, destinationCode: String) {
         viewModelScope.launch {
-            val favoriteRoute = Favorite(0, departureCode, destinationCode)
-            flightDao.insertFavoriteRoute(favoriteRoute)
             dataStoreManager.saveFavoriteRoute("$departureCode -> $destinationCode")
         }
     }
 
-    // Delete a favorite route from Room and DataStore
+    // Delete a favorite route from DataStore
     fun deleteFavoriteRoute(departureCode: String, destinationCode: String) {
         viewModelScope.launch {
-            flightDao.deleteFavoriteRoute(departureCode, destinationCode)
             dataStoreManager.removeFavoriteRoute("$departureCode -> $destinationCode")
         }
     }
+
 }
