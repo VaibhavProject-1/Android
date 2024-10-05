@@ -25,7 +25,7 @@ interface FlightDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavoriteRoute(favorite: Favorite)
 
-    // Delete a favorite route by id
-    @Query("DELETE FROM favorite WHERE id = :id")
-    suspend fun deleteFavoriteRoute(id: Int)
+    // Delete a favorite route by departure and destination code
+    @Query("DELETE FROM favorite WHERE departure_code = :departureCode AND destination_code = :destinationCode")
+    suspend fun deleteFavoriteRoute(departureCode: String, destinationCode: String)
 }
