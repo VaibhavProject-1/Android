@@ -22,6 +22,10 @@
     <string name="one_month">1 month</string>
     <string name="water">Water</string>
     <string name="time_to_water">It\'s time to water your %s.</string>
+    <string name="one_minute">1 minute</string>
+    <string name="two_minutes">2 minutes</string>
+    <string name="three_minutes">3 minutes</string>
+
 
     <string name="lithop">Lithop</string>
     <string name="carrot">Carrot</string>
