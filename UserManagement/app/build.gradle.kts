@@ -74,10 +74,11 @@ dependencies {
     implementation(libs.material3)
 
     // Testing Dependencies
-    testImplementation(libs.junit)
+    //testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v115)
     androidTestImplementation(libs.androidx.espresso.core.v351)
     androidTestImplementation(libs.androidx.compose.ui.ui.test.junit43)
+    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.4.1")
 
     // Debugging Dependencies
     debugImplementation(libs.androidx.compose.ui.ui.tooling3)
