@@ -48,9 +48,9 @@ class ProductDetail extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // Product name and price
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Expanded(
                   child: Text(
                     'Product Name',
@@ -76,8 +76,8 @@ class ProductDetail extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.star, color: Colors.orange, size: 20),
                 Icon(Icons.star, color: Colors.orange, size: 20),
                 Icon(Icons.star, color: Colors.orange, size: 20),
@@ -200,24 +200,24 @@ class CartSidebar extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text('Subtotal', style: TextStyle(fontSize: 16)),
                     Text('\$8.61', style: TextStyle(fontSize: 16)),
                   ],
                 ),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text('Delivery', style: TextStyle(fontSize: 16)),
                     Text('\$1.00', style: TextStyle(fontSize: 16)),
                   ],
                 ),
                 const Divider(thickness: 1),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text(
                       'Total',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

@@ -1,15 +1,16 @@
-// signup_login_screen.dart
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // Import the HomeScreen
+import 'main_screen.dart';
 
 class SignUpLoginScreen extends StatefulWidget {
-  const SignUpLoginScreen({Key? key}) : super(key: key);
+  final VoidCallback toggleTheme; // Accept the toggleTheme callback
+
+  const SignUpLoginScreen({Key? key, required this.toggleTheme}) : super(key: key);
 
   @override
-  _SignUpLoginScreenState createState() => _SignUpLoginScreenState();
+  SignUpLoginScreenState createState() => SignUpLoginScreenState();
 }
 
-class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
+class SignUpLoginScreenState extends State<SignUpLoginScreen> {
   bool isSignUp = true; // Variable to track if we are showing the SignUp form
 
   @override
@@ -18,6 +19,13 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
       appBar: AppBar(
         title: Text(isSignUp ? 'Sign Up / Login' : 'Login'),
         centerTitle: true,
+        actions: [
+          // Add a button to toggle theme
+          IconButton(
+            icon: const Icon(Icons.brightness_6),
+            onPressed: widget.toggleTheme, // Call the toggleTheme method
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -41,7 +49,7 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
               children: [
                 IconButton(
                   onPressed: () {
-                    // Handle Facebook login
+                    print('Facebook login pressed');
                   },
                   icon: const Icon(Icons.facebook),
                   iconSize: 40,
@@ -49,7 +57,7 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    // Handle Google login
+                    print('Google login pressed');
                   },
                   icon: const Icon(Icons.g_mobiledata),
                   iconSize: 40,
@@ -57,7 +65,7 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    // Handle Twitter login
+                    print('Twitter login pressed');
                   },
                   icon: const Icon(Icons.alternate_email),
                   iconSize: 40,
@@ -118,15 +126,15 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Handle sign up or login based on the form state
                 if (!isSignUp) {
-                  // Sign In Logic, navigate to HomeScreen
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
+                      builder: (context) => MainScreen(toggleTheme: widget.toggleTheme),
                     ),
                   );
+                } else {
+                  print('Sign Up pressed');
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -142,29 +150,15 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen> {
               child: TextButton(
                 onPressed: () {
                   setState(() {
-                    isSignUp = !isSignUp; // Toggle between SignUp and SignIn
+                    isSignUp = !isSignUp;
                   });
                 },
                 child: Text(
-                  isSignUp
-                      ? 'Already have an account? SIGN IN'
-                      : 'Don\'t have an account? SIGN UP',
+                  isSignUp ? 'Already have an account? SIGN IN' : 'Don\'t have an account? SIGN UP',
                   style: const TextStyle(decoration: TextDecoration.underline),
                 ),
               ),
             ),
-            if (!isSignUp)
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Navigate to forgot password screen or implement reset functionality
-                  },
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(decoration: TextDecoration.underline),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

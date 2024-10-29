@@ -5,10 +5,10 @@ class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  CartScreenState createState() => CartScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class CartScreenState extends State<CartScreen> {
   late Razorpay _razorpay;
 
   @override
@@ -109,7 +109,7 @@ class _CartScreenState extends State<CartScreen> {
           children: [
             Expanded(
               child: ListView(
-                children: [
+                children: const [
                   // Cart item
                   CartItem(
                     imageUrl: 'https://via.placeholder.com/80',
@@ -134,9 +134,9 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 16),
             // Subtotal, Delivery, and Total section
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text(
                   'Subtotal',
                   style: TextStyle(fontSize: 16),
@@ -147,9 +147,9 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ],
             ),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text(
                   'Delivery',
                   style: TextStyle(fontSize: 16),
@@ -161,9 +161,9 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
             const Divider(thickness: 1, height: 30),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text(
                   'Total',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -180,7 +180,7 @@ class _CartScreenState extends State<CartScreen> {
               onPressed: openCheckout, // Trigger Razorpay payment on button press
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
-                primary: Colors.purple, // Customize button color here
+                backgroundColor: Colors.purple, // Customize button color here
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -222,7 +222,9 @@ class CartItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Image with error handling
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
@@ -230,15 +232,23 @@ class CartItem extends StatelessWidget {
                 height: 60,
                 width: 60,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.broken_image,
+                  size: 60,
+                  color: Colors.grey,
+                ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
+            // Expanded column for name and quantity
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -247,26 +257,29 @@ class CartItem extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     quantity,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            Text(
-              '\$$price',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: () {
-                // Handle remove item
-              },
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+            // Price and delete button
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '\$$price',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    // Handle remove item
+                  },
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                ),
+              ],
             ),
           ],
         ),

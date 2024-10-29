@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'product_detail.dart'; // Import the ProductDetail screen
+import 'product_detail.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Use Theme to determine the current mode
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final searchBarColor = isDarkMode ? Colors.grey[800] : Colors.grey[200];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('rapiddeals', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('FlutterMart', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -29,12 +33,14 @@ class HomeScreen extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(
                   hintText: 'Search...',
-                  prefixIcon: Icon(Icons.search),
+                  hintStyle: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
+                  prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: Colors.grey[200],
+                  fillColor: searchBarColor,
                 ),
               ),
               const SizedBox(height: 20),
@@ -69,7 +75,6 @@ class HomeScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      // Navigate to the ProductDetail screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -84,7 +89,6 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Product image
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
@@ -92,6 +96,23 @@ class HomeScreen extends StatelessWidget {
                               height: 120,
                               width: double.infinity,
                               fit: BoxFit.cover,
+                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                        : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) => const Center(
+                                child: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                  size: 50,
+                                ),
+                              ),
                             ),
                           ),
                           const Padding(
@@ -126,31 +147,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      // Bottom navigation bar
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Shop',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Category',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Me',
-          ),
-        ],
-        currentIndex: 0, // Set the current index dynamically
-        onTap: (index) {
-          // Handle tab changes
-        },
       ),
     );
   }
