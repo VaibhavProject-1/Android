@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cart_screen.dart';
 
 class ProductDetail extends StatelessWidget {
   const ProductDetail({Key? key}) : super(key: key);
@@ -10,13 +11,20 @@ class ProductDetail extends StatelessWidget {
         title: const Text('Category'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Navigate to cart screen
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer(); // Open the cart drawer
+                },
+              );
             },
           ),
         ],
+      ),
+      endDrawer: const Drawer(
+        child: CartSidebar(), // Cart sidebar drawer
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -143,6 +151,136 @@ class ProductDetail extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CartSidebar extends StatelessWidget {
+  const CartSidebar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Your Cart',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          // Cart items list
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              children: [
+                _buildCartItem('Donut', 'R 3 A', 2.97),
+                _buildCartItem('Peas', 'R 50 A', 1.64),
+                _buildCartItem('Oranges', 'R 2 A', 4.00),
+              ],
+            ),
+          ),
+          // Total and Checkout Button
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Subtotal', style: TextStyle(fontSize: 16)),
+                    Text('\$8.61', style: TextStyle(fontSize: 16)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Delivery', style: TextStyle(fontSize: 16)),
+                    Text('\$1.00', style: TextStyle(fontSize: 16)),
+                  ],
+                ),
+                const Divider(thickness: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      'Total',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '\$9.61',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  child: const Text('Checkout'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCartItem(String name, String quantity, double price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.image, color: Colors.grey),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(quantity, style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ),
+          Text('\$${price.toStringAsFixed(2)}'),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.grey),
+            onPressed: () {
+              // Handle item removal from cart
+            },
+          ),
+        ],
       ),
     );
   }
