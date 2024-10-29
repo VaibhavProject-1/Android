@@ -1,3 +1,12 @@
+plugins {
+    id ('com.android.application')
+    id ('com.google.gms.google-services') // Firebase plugin
+    id ('kotlin-android')
+    id ('com.google.firebase.crashlytics') // if you are using Firebase Crashlytics
+    //id 'com.google.firebase.analytics'   // if you are using Firebase Analytics
+    id ('org.jetbrains.kotlin.android') // Needed for Kotlin support
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -11,30 +20,16 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
 
-plugins {
-    id 'com.android.application'
-    id 'com.google.gms.google-services' // Firebase plugin
-    id 'kotlin-android'
-    id 'com.google.firebase.crashlytics' // if you are using Firebase Crashlytics
-    id 'com.google.firebase.analytics'   // if you are using Firebase Analytics
-    id 'org.jetbrains.kotlin.android' // Needed for Kotlin support
-}
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "com.vaibhav.fluttermart.flutter_mart"
     compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -75,4 +70,11 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
+
 }
