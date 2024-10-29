@@ -21,8 +21,14 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services' // Firebase plugin
+    id 'kotlin-android'
+    id 'com.google.firebase.crashlytics' // if you are using Firebase Crashlytics
+    id 'com.google.firebase.analytics'   // if you are using Firebase Analytics
+    id 'org.jetbrains.kotlin.android' // Needed for Kotlin support
+}
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
@@ -48,7 +54,7 @@ android {
         applicationId "com.vaibhav.fluttermart.flutter_mart"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

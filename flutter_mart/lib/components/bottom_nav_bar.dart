@@ -15,7 +15,7 @@ class BottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
       onTap: onItemTapped,
-      backgroundColor: Theme.of(context).bottomAppBarColor,
+      backgroundColor: Theme.of(context).colorScheme.surface, // Updated line
       selectedItemColor: Theme.of(context).colorScheme.primary,
       unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
       type: BottomNavigationBarType.fixed,
