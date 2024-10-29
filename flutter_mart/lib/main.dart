@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'signup_login_screen.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  bool isDarkMode = false; // Track the current theme mode
+  bool isDarkMode = false;
 
   void toggleTheme() {
     setState(() {
@@ -45,62 +45,6 @@ class MyAppState extends State<MyApp> {
         ),
       ),
       home: OnboardingScreen(toggleTheme: toggleTheme),
-    );
-  }
-}
-
-class OnboardingScreen extends StatelessWidget {
-  final VoidCallback toggleTheme;
-
-  const OnboardingScreen({Key? key, required this.toggleTheme}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blueAccent,
-              child: Icon(
-                Icons.shopping_bag,
-                size: 50,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'FlutterMart',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Your shopping companion in your pocket',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SignUpLoginScreen(toggleTheme: toggleTheme),
-                  ),
-                );
-              },
-              child: const Text('Explore'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
