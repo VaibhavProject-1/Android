@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
 
-    <string name="facebook_app_id">1234</string>
+    <string name="facebook_app_id">2353030231701605</string>
     <string name="app_name">Flutter Mart</string>
-    <string name="fb_login_protocol_scheme">fb1234</string>
-    <string name="facebook_client_token">56789</string>
+    <string name="fb_login_protocol_scheme">fb2353030231701605</string>
+    <string name="facebook_client_token">bb84b6d18a40275afcaab79c4f964595</string>
 
 
 </resources>

@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../components/profile/profile_avatar.dart';
 import '../components/profile/profile_info.dart';
 import '../components/profile/theme_switch_tile.dart';
+import '../components/page_content.dart';
 import 'signup_login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final VoidCallback toggleTheme;
-
-  const ProfileScreen({Key? key, required this.toggleTheme}) : super(key: key);
+  const ProfileScreen({Key? key, required void Function() toggleTheme}) : super(key: key);
 
   @override
   ProfileScreenState createState() => ProfileScreenState();
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
-  bool isDarkMode = false;
-
   void handleLogout(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => SignUpLoginScreen(toggleTheme: widget.toggleTheme)),
+      MaterialPageRoute(builder: (context) => SignUpLoginScreen()), // Removed toggleTheme
           (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final pageContent = Provider.of<PageContent>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -33,6 +33,12 @@ class ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.brightness_6),
+            onPressed: pageContent.toggleTheme, // Directly toggle theme
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -58,12 +64,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   ThemeSwitchTile(
-                    isDarkMode: isDarkMode,
+                    isDarkMode: pageContent.isDarkMode,
                     onToggle: (value) {
-                      setState(() {
-                        isDarkMode = value;
-                        widget.toggleTheme();
-                      });
+                      pageContent.toggleTheme(); // Access toggleTheme directly
                     },
                   ),
                   ProfileInfo(

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 import '../components/page_content.dart';
-
+import '../components/bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
-  final VoidCallback toggleTheme;
-
-  const MainScreen({Key? key, required this.toggleTheme}) : super(key: key);
-
   @override
   MainScreenState createState() => MainScreenState();
 }
@@ -19,15 +15,29 @@ class MainScreenState extends State<MainScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    print("Tapped index: $index"); // Debugging to confirm tab updates
   }
 
   @override
   Widget build(BuildContext context) {
+    final pageContent = Provider.of<PageContent>(context);
+
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('FlutterMart'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.brightness_6),
+            onPressed: pageContent.toggleTheme,
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: pageContent.signOut,
+          ),
+        ],
+      ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: PageContent(toggleTheme: widget.toggleTheme).pages,
+        children: pageContent.pages,
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,

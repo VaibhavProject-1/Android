@@ -2,8 +2,17 @@ import 'package:flutter/material.dart';
 
 class AuthTextFields extends StatelessWidget {
   final bool isSignUp;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final TextEditingController nameController;
 
-  const AuthTextFields({Key? key, required this.isSignUp}) : super(key: key);
+  const AuthTextFields({
+    Key? key,
+    required this.isSignUp,
+    required this.emailController,
+    required this.passwordController,
+    required this.nameController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,8 +20,9 @@ class AuthTextFields extends StatelessWidget {
       children: [
         if (isSignUp)
           TextField(
+            controller: nameController,
             decoration: InputDecoration(
-              labelText: 'Full name',
+              labelText: 'Full Name',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -20,6 +30,7 @@ class AuthTextFields extends StatelessWidget {
           ),
         if (isSignUp) const SizedBox(height: 16),
         TextField(
+          controller: emailController,
           decoration: InputDecoration(
             labelText: 'Email',
             border: OutlineInputBorder(
@@ -29,6 +40,7 @@ class AuthTextFields extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         TextField(
+          controller: passwordController,
           obscureText: true,
           decoration: InputDecoration(
             labelText: 'Password',
@@ -40,9 +52,10 @@ class AuthTextFields extends StatelessWidget {
         if (isSignUp) const SizedBox(height: 16),
         if (isSignUp)
           TextField(
+            controller: TextEditingController(), // add a confirm password controller if needed
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Confirm password',
+              labelText: 'Confirm Password',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

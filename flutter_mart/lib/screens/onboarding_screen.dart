@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'signup_login_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  final VoidCallback toggleTheme;
-
-  const OnboardingScreen({Key? key, required this.toggleTheme}) : super(key: key);
+  const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +42,7 @@ class OnboardingScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SignUpLoginScreen(toggleTheme: toggleTheme),
+                    builder: (context) => SignUpLoginScreen(), // Removed toggleTheme
                   ),
                 );
               },
