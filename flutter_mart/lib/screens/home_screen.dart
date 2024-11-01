@@ -24,6 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
     productProvider.loadProducts();
   }
 
+  void _searchProducts(String query) {
+    productProvider.searchProducts(query);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -47,22 +51,41 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomSearchBar(isDarkMode: isDarkMode),
+              CustomSearchBar(isDarkMode: isDarkMode, onSearch: _searchProducts),
               const SizedBox(height: 20),
               const BannerImage(),
               const SizedBox(height: 20),
-              const Text(
-                'New Arrivals',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
               Consumer<ProductProvider>(
                 builder: (context, productProvider, child) {
-                  if (productProvider.products.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else {
-                    return NewArrivalGrid(products: productProvider.products);
+                  final productsByCategory = productProvider.productsByCategory;
+
+                  if (productsByCategory.isEmpty) {
+                    return const Center(child: Text('No products found.'));
                   }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: productsByCategory.entries.map((entry) {
+                      final category = entry.key;
+                      final products = entry.value;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 20),
+                          Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          NewArrivalGrid(products: products),
+                        ],
+                      );
+                    }).toList(),
+                  );
                 },
               ),
             ],

@@ -1,21 +1,17 @@
 // lib/components/search_bar.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/product_provider.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final bool isDarkMode;
+  final Function(String) onSearch;
 
-  const CustomSearchBar({Key? key, required this.isDarkMode}) : super(key: key);
+  const CustomSearchBar({Key? key, required this.isDarkMode, required this.onSearch}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final searchBarColor = isDarkMode ? Colors.grey[800] : Colors.grey[200];
-
     return TextField(
-      onChanged: (query) {
-        Provider.of<ProductProvider>(context, listen: false).searchProducts(query);
-      },
+      onChanged: onSearch, // Trigger search on text change
       decoration: InputDecoration(
         hintText: 'Search...',
         hintStyle: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
