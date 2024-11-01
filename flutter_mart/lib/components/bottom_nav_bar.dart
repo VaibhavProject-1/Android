@@ -15,7 +15,7 @@ class BottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
       onTap: onItemTapped,
-      backgroundColor: Theme.of(context).colorScheme.surface, // Updated line
+      backgroundColor: Theme.of(context).colorScheme.surface,
       selectedItemColor: Theme.of(context).colorScheme.primary,
       unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
       type: BottomNavigationBarType.fixed,
@@ -26,6 +26,7 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Category'),
         BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Me'),
+        BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Products'), // New tab for ProductListScreen
       ],
     );
   }

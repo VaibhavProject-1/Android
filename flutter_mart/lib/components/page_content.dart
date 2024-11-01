@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/cart_screen.dart';
 import '../screens/categories_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/manage_product_screen.dart';  // Import the new ManageProductScreen
 import '../screens/profile_screen.dart';
 
 class PageContent extends ChangeNotifier {
@@ -37,5 +38,6 @@ class PageContent extends ChangeNotifier {
     const CategoriesScreen(),
     const CartScreen(),
     ProfileScreen(toggleTheme: toggleTheme),
+    const ManageProductScreen(),  // Use ManageProductScreen here
   ];
 }

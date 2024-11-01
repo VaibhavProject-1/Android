@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
+import '../models/product.dart';
 import '../screens/product_detail.dart';
 
 class NewArrivalCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String color;
-  final double price;
+  final Product product;
 
   const NewArrivalCard({
     Key? key,
-    required this.imageUrl,
-    required this.title,
-    required this.color,
-    required this.price,
+    required this.product,
   }) : super(key: key);
 
   @override
@@ -21,20 +16,27 @@ class NewArrivalCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ProductDetail()),
+          MaterialPageRoute(
+            builder: (context) => ProductDetail(product: product),
+          ),
         );
       },
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min, // Ensure the Column only takes up needed space
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
               child: Image.network(
-                imageUrl,
+                product.images.isNotEmpty ? product.images.first : '',
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -58,9 +60,9 @@ class NewArrivalCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding for compactness
               child: Text(
-                title,
+                product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -69,15 +71,15 @@ class NewArrivalCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
-                color,
-                style: const TextStyle(color: Colors.grey),
+                product.variants.keys.isNotEmpty ? product.variants.keys.first : 'Color not specified',
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), // Reduced bottom padding
               child: Text(
-                '\$$price',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                '\$${product.price}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
           ],

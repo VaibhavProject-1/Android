@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/product.dart';
 import '../components/cart/cart_sidebar.dart';
 import '../components/product/add_to_cart_button.dart';
 import '../components/product/product_code_rating.dart';
@@ -8,13 +9,15 @@ import '../components/product/product_name_price.dart';
 import '../components/product/product_options.dart';
 
 class ProductDetail extends StatelessWidget {
-  const ProductDetail({Key? key}) : super(key: key);
+  final Product product;
+
+  const ProductDetail({Key? key, required this.product}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Category'),
+        title: Text(product.name),
         centerTitle: true,
         actions: [
           Builder(
@@ -37,19 +40,19 @@ class ProductDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ProductImage(),
+            ProductImage(imageUrl: product.images.first),
             const SizedBox(height: 16),
-            const ProductNamePrice(),
+            ProductNamePrice(name: product.name, price: product.price),
             const SizedBox(height: 8),
-            const ProductCodeRating(),
+            ProductCodeRating(code: product.id, rating: product.rating),
             const SizedBox(height: 16),
-            const ProductDescription(),
+            ProductDescription(description: product.description),
             const SizedBox(height: 16),
-            const ProductOptions(),
+            ProductOptions(options: product.variants), // Pass the variants to ProductOptions
             const SizedBox(height: 24),
             AddToCartButton(
               onPressed: () {
-                // Handle add to cart
+                // Handle add to cart functionality
               },
             ),
           ],

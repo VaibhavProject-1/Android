@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
-import '../components/search_bar.dart'; // Updated import path
+import 'package:provider/provider.dart';
+import '../components/search_bar.dart';
 import '../components/banner_image.dart';
 import '../components/new_arrival_grid.dart';
+import '../providers/product_provider.dart';
+import 'add_edit_product_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late ProductProvider productProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    productProvider = Provider.of<ProductProvider>(context, listen: false);
+    productProvider.loadProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +46,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomSearchBar(isDarkMode: isDarkMode), // Updated widget name
+              CustomSearchBar(isDarkMode: isDarkMode),
               const SizedBox(height: 20),
               const BannerImage(),
               const SizedBox(height: 20),
@@ -38,10 +55,28 @@ class HomeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              const NewArrivalGrid(),
+              Consumer<ProductProvider>(
+                builder: (context, productProvider, child) {
+                  if (productProvider.products.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else {
+                    return NewArrivalGrid(products: productProvider.products);
+                  }
+                },
+              ),
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddEditProductScreen()),
+          );
+        },
+        tooltip: 'Add Product',
+        child: const Icon(Icons.add),
       ),
     );
   }

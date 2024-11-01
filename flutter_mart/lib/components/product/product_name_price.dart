@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 
 class ProductNamePrice extends StatelessWidget {
-  const ProductNamePrice({Key? key}) : super(key: key);
+  final String name;
+  final double price;
+
+  const ProductNamePrice({Key? key, required this.name, required this.price}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            'Product Name',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
         Text(
-          '\$315.95',
-          style: TextStyle(
-            fontSize: 24,
+          name,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '\$$price',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.green,
             fontWeight: FontWeight.bold,
           ),
         ),

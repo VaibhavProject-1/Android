@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import '../models/product.dart';
 import 'new_arrival_card.dart';
 
 class NewArrivalGrid extends StatelessWidget {
-  const NewArrivalGrid({Key? key}) : super(key: key);
+  final List<Product> products;
+
+  const NewArrivalGrid({
+    Key? key,
+    required this.products,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +19,13 @@ class NewArrivalGrid extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 0.7,
+        childAspectRatio: 0.9,
       ),
-      itemCount: 4, // Replace with dynamic count if available
+      itemCount: products.length, // Use dynamic product count
       itemBuilder: (context, index) {
-        return const NewArrivalCard(
-          imageUrl: 'https://via.placeholder.com/150',
-          title: 'Taylor Plush 4-Piece Modular Chaise ...',
-          color: '1 Color',
-          price: 293.00,
+        final product = products[index];
+        return NewArrivalCard(
+          product: product,
         );
       },
     );

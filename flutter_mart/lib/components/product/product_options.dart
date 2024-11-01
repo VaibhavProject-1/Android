@@ -1,49 +1,45 @@
 import 'package:flutter/material.dart';
 
 class ProductOptions extends StatelessWidget {
-  const ProductOptions({Key? key}) : super(key: key);
+  final Map<String, List<String>> options;
+
+  const ProductOptions({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: DropdownButtonFormField<String>(
-            decoration: InputDecoration(
-              labelText: 'Color',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'Red', child: Text('Red')),
-              DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-              DropdownMenuItem(value: 'Green', child: Text('Green')),
-            ],
-            onChanged: (value) {
-              // Handle color selection
-            },
-          ),
+        Text(
+          'Options',
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: DropdownButtonFormField<String>(
-            decoration: InputDecoration(
-              labelText: 'Size',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+        const SizedBox(height: 8),
+        ...options.entries.map((entry) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.key,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'S', child: Text('S')),
-              DropdownMenuItem(value: 'M', child: Text('M')),
-              DropdownMenuItem(value: 'L', child: Text('L')),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: entry.value.map((option) {
+                  return ChoiceChip(
+                    label: Text(option),
+                    selected: false, // Update selection logic as needed
+                    onSelected: (bool selected) {
+                      // Handle option selection
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
             ],
-            onChanged: (value) {
-              // Handle size selection
-            },
-          ),
-        ),
+          );
+        }).toList(),
       ],
     );
   }

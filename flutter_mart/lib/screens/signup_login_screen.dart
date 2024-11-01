@@ -75,6 +75,26 @@ class SignUpLoginScreenState extends State<SignUpLoginScreen> {
     }
   }
 
+  Future<void> _resetPassword() async {
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter your email to reset password.")),
+      );
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password reset email sent!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final pageContent = Provider.of<PageContent>(context);
@@ -147,6 +167,15 @@ class SignUpLoginScreenState extends State<SignUpLoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                ),
+              ),
+            if (!isSignUp) const SizedBox(height: 8),
+            if (!isSignUp)
+              TextButton(
+                onPressed: _resetPassword,
+                child: const Text(
+                  'Forgot Password?',
+                  style: TextStyle(decoration: TextDecoration.underline),
                 ),
               ),
             const SizedBox(height: 24),

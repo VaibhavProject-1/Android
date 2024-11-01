@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,12 +8,15 @@ import 'screens/signup_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'components/page_content.dart';
+import 'providers/product_provider.dart'; // Import ProductProvider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+
   runApp(const MyApp());
 }
 
@@ -21,8 +25,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => PageContent(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PageContent()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()), // Provide ProductProvider here
+      ],
       child: Consumer<PageContent>(
         builder: (context, pageContent, child) {
           return MaterialApp(

@@ -7,15 +7,16 @@ class AddToCartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return ElevatedButton.icon(
       onPressed: onPressed,
+      icon: const Icon(Icons.add_shopping_cart),
+      label: const Text('Add to Cart'),
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      child: const Text('Add to Cart', style: TextStyle(fontSize: 18)),
     );
   }
 }
