@@ -1,78 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_mart/screens/signup_login_screen.dart';
 import '../components/profile/profile_avatar.dart';
 import '../components/profile/profile_info.dart';
-import '../components/profile/theme_switch_tile.dart';
-import '../components/page_content.dart';
-import 'signup_login_screen.dart';
+import 'edit_profile_screen.dart';
+import 'manage_addresses_screen.dart';
+import 'change_password_screen.dart';
+import 'orders_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key, required void Function() toggleTheme}) : super(key: key);
+  final VoidCallback toggleTheme;
+
+  const ProfileScreen({Key? key, required this.toggleTheme}) : super(key: key);
 
   @override
   ProfileScreenState createState() => ProfileScreenState();
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
-  void handleLogout(BuildContext context) {
+  // Remove the BuildContext parameter here
+  void handleLogout() async {
+    await FirebaseAuth.instance.signOut();
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => SignUpLoginScreen()), // Removed toggleTheme
+      MaterialPageRoute(builder: (context) => SignUpLoginScreen()),
           (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final pageContent = Provider.of<PageContent>(context);
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Profile'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.brightness_6),
-            onPressed: pageContent.toggleTheme, // Directly toggle theme
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const ProfileAvatar(),
+            ProfileAvatar(
+              name: user?.displayName ?? 'Guest User',
+              email: user?.email ?? 'guest@example.com',
+              photoUrl: user?.photoURL,
+            ),
             const SizedBox(height: 24),
             Expanded(
               child: ListView(
                 children: [
                   ProfileInfo(
                     icon: Icons.person,
-                    title: "My Profile",
+                    title: "Edit Profile",
                     onTap: () {
-                      // Handle "My Profile" tap
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                      );
                     },
                   ),
                   ProfileInfo(
-                    icon: Icons.shopping_bag,
-                    title: "My Orders",
+                    icon: Icons.location_on,
+                    title: "Manage Addresses",
                     onTap: () {
-                      // Handle "My Orders" tap
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ManageAddressesScreen()),
+                      );
                     },
                   ),
-                  ThemeSwitchTile(
-                    isDarkMode: pageContent.isDarkMode,
-                    onToggle: (value) {
-                      pageContent.toggleTheme(); // Access toggleTheme directly
+                  ProfileInfo(
+                    icon: Icons.receipt_long,
+                    title: "My Orders",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                      );
                     },
+                  ),
+                  ProfileInfo(
+                    icon: Icons.lock,
+                    title: "Change Password",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                      );
+                    },
+                  ),
+                  ProfileInfo(
+                    icon: Icons.brightness_6,
+                    title: "Toggle Theme",
+                    onTap: widget.toggleTheme,
                   ),
                   ProfileInfo(
                     icon: Icons.logout,
                     title: "Log Out",
-                    onTap: () => handleLogout(context),
+                    onTap: handleLogout, // Call handleLogout directly
                     trailing: const Icon(Icons.logout, color: Colors.red),
                   ),
                 ],

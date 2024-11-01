@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
               // Navigate to the cart screen
+              Navigator.pushNamed(context, '/cart');
             },
           ),
         ],

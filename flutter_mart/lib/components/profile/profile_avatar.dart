@@ -1,29 +1,39 @@
+// lib/components/profile/profile_avatar.dart
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  const ProfileAvatar({Key? key}) : super(key: key);
+  final String name;
+  final String email;
+  final String? photoUrl;
+
+  const ProfileAvatar({
+    Key? key,
+    required this.name,
+    required this.email,
+    this.photoUrl,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         CircleAvatar(
           radius: 50,
-          backgroundImage: NetworkImage(
-            'https://via.placeholder.com/150',
-          ),
+          backgroundImage: photoUrl != null
+              ? NetworkImage(photoUrl!)
+              : const AssetImage('assets/default_avatar.jpg') as ImageProvider,
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
-          'Ronald Richards',
-          style: TextStyle(
+          name,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
-          'ronaldrichards@gmail.com',
-          style: TextStyle(
+          email,
+          style: const TextStyle(
             fontSize: 14,
             color: Colors.grey,
           ),

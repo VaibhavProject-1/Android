@@ -1,21 +1,21 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mart/screens/cart_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/onboarding_screen.dart';
-import 'screens/signup_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'components/page_content.dart';
-import 'providers/product_provider.dart'; // Import ProductProvider
+import 'providers/product_provider.dart';
+import 'providers/cart_provider.dart';
+import 'providers/order_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
 
   runApp(const MyApp());
 }
@@ -28,7 +28,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PageContent()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()), // Provide ProductProvider here
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: Consumer<PageContent>(
         builder: (context, pageContent, child) {
@@ -65,6 +67,9 @@ class MyApp extends StatelessWidget {
                 }
               },
             ),
+            routes: {
+              '/cart': (context) => const CartScreen(),
+            },
           );
         },
       ),

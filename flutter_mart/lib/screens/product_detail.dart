@@ -1,23 +1,37 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
-import '../components/cart/cart_sidebar.dart';
-import '../components/product/add_to_cart_button.dart';
-import '../components/product/product_code_rating.dart';
+import 'package:provider/provider.dart';
 import '../components/product/product_description.dart';
 import '../components/product/product_image.dart';
 import '../components/product/product_name_price.dart';
+import '../providers/cart_provider.dart';
+import '../components/cart/cart_sidebar.dart';
+import '../models/product.dart';
+import '../components/product/add_to_cart_button.dart';
 import '../components/product/product_options.dart';
 
-class ProductDetail extends StatelessWidget {
+class ProductDetail extends StatefulWidget {
   final Product product;
 
   const ProductDetail({Key? key, required this.product}) : super(key: key);
 
   @override
+  _ProductDetailState createState() => _ProductDetailState();
+}
+
+class _ProductDetailState extends State<ProductDetail> {
+  Map<String, String> selectedVariant = {};
+
+  void _selectVariant(String variantType, String option) {
+    setState(() {
+      selectedVariant[variantType] = option;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.name),
+        title: Text(widget.product.name),
         centerTitle: true,
         actions: [
           Builder(
@@ -40,19 +54,27 @@ class ProductDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImage(imageUrl: product.images.first),
+            ProductImage(imageUrl: widget.product.images.first),
             const SizedBox(height: 16),
-            ProductNamePrice(name: product.name, price: product.price),
+            ProductNamePrice(name: widget.product.name, price: widget.product.price),
             const SizedBox(height: 8),
-            ProductCodeRating(code: product.id, rating: product.rating),
+            ProductDescription(description: widget.product.description),
             const SizedBox(height: 16),
-            ProductDescription(description: product.description),
-            const SizedBox(height: 16),
-            ProductOptions(options: product.variants), // Pass the variants to ProductOptions
+            ProductOptions(
+              options: widget.product.variants,
+              selectedVariant: selectedVariant,
+              onVariantSelected: _selectVariant,
+            ),
             const SizedBox(height: 24),
             AddToCartButton(
               onPressed: () {
-                // Handle add to cart functionality
+                Provider.of<CartProvider>(context, listen: false).addToCart(
+                  widget.product,
+                  selectedVariant,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("${widget.product.name} added to cart")),
+                );
               },
             ),
           ],
