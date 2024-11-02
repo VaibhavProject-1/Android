@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:elegant_notification/elegant_notification.dart';
 import '../screens/main_screen.dart';
 
 class SocialMediaButtons extends StatefulWidget {
@@ -34,9 +35,10 @@ class _SocialMediaButtonsState extends State<SocialMediaButtons> {
         MaterialPageRoute(builder: (context) => MainScreen()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to sign in with Google: $e")),
-      );
+      ElegantNotification.error(
+        title: const Text("Google Sign-In Failed"),
+        description: Text("Failed to sign in with Google: $e"),
+      ).show(context);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -57,18 +59,21 @@ class _SocialMediaButtonsState extends State<SocialMediaButtons> {
           );
         }
       } else if (result.status == LoginStatus.cancelled) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Facebook sign-in cancelled")),
-        );
+        ElegantNotification.info(
+          title: const Text("Facebook Sign-In Cancelled"),
+          description: const Text("Facebook sign-in was cancelled by the user."),
+        ).show(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Facebook sign-in failed: ${result.message}")),
-        );
+        ElegantNotification.error(
+          title: const Text("Facebook Sign-In Failed"),
+          description: Text("Facebook sign-in failed: ${result.message}"),
+        ).show(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to sign in with Facebook: $e")),
-      );
+      ElegantNotification.error(
+        title: const Text("Facebook Sign-In Failed"),
+        description: Text("Failed to sign in with Facebook: $e"),
+      ).show(context);
     } finally {
       setState(() => _isLoading = false);
     }

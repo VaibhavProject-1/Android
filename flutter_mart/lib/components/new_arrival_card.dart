@@ -12,6 +12,10 @@ class NewArrivalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate dynamic height based on screen width to ensure responsive image size
+    final screenWidth = MediaQuery.of(context).size.width;
+    final imageHeight = screenWidth < 600 ? 120.0 : 180.0; // Convert int to double
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -37,7 +41,7 @@ class NewArrivalCard extends StatelessWidget {
               ),
               child: Image.network(
                 product.images.isNotEmpty ? product.images.first : '',
-                height: 120,
+                height: imageHeight, // Already converted to double
                 width: double.infinity,
                 fit: BoxFit.cover,
                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
@@ -60,26 +64,35 @@ class NewArrivalCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding for compactness
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Text(
                 product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: screenWidth < 600 ? 14.0 : 16.0, // Convert to double
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 product.variants.keys.isNotEmpty ? product.variants.keys.first : 'Color not specified',
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: screenWidth < 600 ? 12.0 : 14.0, // Convert to double
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), // Reduced bottom padding
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: Text(
                 '\$${product.price}',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth < 600 ? 14.0 : 16.0, // Convert to double
+                ),
               ),
             ),
           ],

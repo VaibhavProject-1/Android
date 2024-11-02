@@ -1,9 +1,9 @@
-// lib/screens/cart_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:elegant_notification/elegant_notification.dart'; // Import ElegantNotification
 import '../providers/cart_provider.dart';
 import '../components/cart/cart_item.dart';
 import '../components/subtotal_display.dart';
@@ -47,7 +47,6 @@ class _CartScreenState extends State<CartScreen> {
         .get();
 
     if (snapshot.docs.isEmpty) {
-      // Prompt to add a new address if no saved addresses
       _openAddressForm();
     }
   }
@@ -107,8 +106,10 @@ class _CartScreenState extends State<CartScreen> {
             );
           });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("No saved addresses available.")));
+      ElegantNotification.info(
+        title: const Text("No Saved Addresses"),
+        description: const Text("Please add a new address."),
+      ).show(context);
       _openAddressForm();
     }
   }
@@ -158,7 +159,11 @@ class _CartScreenState extends State<CartScreen> {
                   selectedAddress = newAddress;
                 });
 
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
+                ElegantNotification.success(
+                  title: const Text("Address Added"),
+                  description: const Text("New address added successfully."),
+                ).show(context);
               },
               child: const Text("Save"),
             ),
@@ -192,6 +197,10 @@ class _CartScreenState extends State<CartScreen> {
                   contactPhone = phoneController.text;
                 });
                 Navigator.pop(context);
+                ElegantNotification.success(
+                  title: const Text("Phone Number Saved"),
+                  description: const Text("Contact phone number has been updated."),
+                ).show(context);
               },
               child: const Text("Save"),
             ),
@@ -224,8 +233,10 @@ class _CartScreenState extends State<CartScreen> {
       cartProvider.clearCart();
       showPaymentSuccessDialog(context, response.paymentId!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select an address and provide a contact phone number before proceeding")));
+      ElegantNotification.error(
+        title: const Text("Incomplete Information"),
+        description: const Text("Please select an address and provide a contact phone number before proceeding."),
+      ).show(context);
     }
   }
 
@@ -234,15 +245,20 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("External Wallet Selected: ${response.walletName}")),
-    );
+    ElegantNotification.info(
+      title: const Text("External Wallet Selected"),
+      description: Text("Wallet: ${response.walletName}"),
+    ).show(context);
   }
 
   void openCheckout(double amount) {
     if (selectedAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select an address before proceeding")));
+      ElegantNotification.info(
+        title: const Text("Address Required"),
+        description: const Text("Please select an address before proceeding."),
+        background: Colors.orangeAccent.shade200, // Custom color for warning indication
+        icon: const Icon(Icons.warning, color: Colors.white), // Warning icon
+      ).show(context);
       return;
     }
 
@@ -265,6 +281,7 @@ class _CartScreenState extends State<CartScreen> {
       debugPrint('Error: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

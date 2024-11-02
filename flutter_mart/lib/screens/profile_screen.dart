@@ -33,10 +33,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
-      ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

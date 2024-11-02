@@ -23,7 +23,6 @@ class BottomNavBar extends StatelessWidget {
       unselectedFontSize: 12,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Shop'),
-        BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Category'),
         BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Me'),
         BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Products'), // New tab for ProductListScreen
