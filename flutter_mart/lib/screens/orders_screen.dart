@@ -1,8 +1,7 @@
 // lib/screens/orders_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // Import intl for date formatting
+import 'package:intl/intl.dart';
 import '../services/order_service.dart';
 import '../models/order.dart';
 import 'order_detail_screen.dart';
@@ -22,11 +21,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
   void initState() {
     super.initState();
     final userId = FirebaseAuth.instance.currentUser?.uid;
-    _ordersFuture = _orderService.fetchOrders(userId!);
+    if (userId != null) {
+      _ordersFuture = _orderService.fetchOrders(userId);
+    } else {
+      _ordersFuture = Future.value([]); // Return empty list if no user ID
+    }
   }
 
   String formatDate(DateTime date) {
-    return DateFormat('yMMMd').format(date); // Format date as 'Oct 5, 2023'
+    return DateFormat('yMMMd').format(date);
   }
 
   @override

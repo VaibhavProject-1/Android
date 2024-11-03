@@ -1,18 +1,49 @@
-// lib/screens/order_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/order.dart';
+import '../services/order_service.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final Order order;
 
   const OrderDetailScreen({Key? key, required this.order}) : super(key: key);
 
   @override
+  _OrderDetailScreenState createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  late String _selectedStatus;
+  final OrderService _orderService = OrderService();
+  final List<String> _statuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize _selectedStatus with a valid value from _statuses
+    if (_statuses.contains(widget.order.orderStatus)) {
+      _selectedStatus = widget.order.orderStatus;
+    } else {
+      _selectedStatus = _statuses.first; // Default to the first status if there's a mismatch
+    }
+  }
+
+  Future<void> _updateOrderStatus(String newStatus) async {
+    await _orderService.updateOrderStatus(widget.order.orderId, newStatus);
+    setState(() {
+      _selectedStatus = newStatus;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Order status updated to $newStatus")),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order #${order.orderId}'),
+        title: Text('Order #${widget.order.orderId}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -20,18 +51,36 @@ class OrderDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Order Date: ${DateFormat('yMMMd').format(order.orderDate)}',
+              'Order Date: ${DateFormat('yMMMd').format(widget.order.orderDate)}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
-              'Total Amount: \$${order.totalAmount.toStringAsFixed(2)}',
+              'Total Amount: \$${widget.order.totalAmount.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Status: ${order.orderStatus}',
-              style: const TextStyle(fontSize: 16),
+            Row(
+              children: [
+                const Text(
+                  'Status: ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                DropdownButton<String>(
+                  value: _selectedStatus,
+                  items: _statuses.map((status) {
+                    return DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    );
+                  }).toList(),
+                  onChanged: (newStatus) {
+                    if (newStatus != null && newStatus != _selectedStatus) {
+                      _updateOrderStatus(newStatus);
+                    }
+                  },
+                ),
+              ],
             ),
             const Divider(),
             const SizedBox(height: 16),
@@ -42,9 +91,9 @@ class OrderDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
-                itemCount: order.items.length,
+                itemCount: widget.order.items.length,
                 itemBuilder: (context, index) {
-                  final item = order.items[index];
+                  final item = widget.order.items[index];
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Image.network(
