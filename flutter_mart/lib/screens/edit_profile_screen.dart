@@ -1,8 +1,8 @@
-// lib/screens/edit_profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:elegant_notification/elegant_notification.dart';
 import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-  File? _imageFile; // For storing the selected image file
+  File? _imageFile;
   final _picker = ImagePicker();
 
   @override
@@ -65,14 +65,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Update user profile with the new photo URL
         await user.updatePhotoURL(downloadUrl);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Avatar updated successfully")),
-        );
+        ElegantNotification.success(
+          title: const Text("Success"),
+          description: const Text("Avatar updated successfully"),
+        ).show(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error uploading avatar: $e")),
-      );
+      ElegantNotification.error(
+        title: const Text("Error"),
+        description: Text("Error uploading avatar: $e"),
+      ).show(context);
     }
   }
 
@@ -83,14 +85,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user.updateDisplayName(_nameController.text);
         await user.updateEmail(_emailController.text);
         await _uploadAvatar(); // Upload the avatar if there's a new image
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Profile updated successfully")),
-        );
+
+        ElegantNotification.success(
+          title: const Text("Success"),
+          description: const Text("Profile updated successfully"),
+        ).show(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating profile: $e")),
-      );
+      ElegantNotification.error(
+        title: const Text("Error"),
+        description: Text("Error updating profile: $e"),
+      ).show(context);
     }
   }
 
@@ -112,7 +117,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? FileImage(_imageFile!)
                     : (user?.photoURL != null
                     ? NetworkImage(user!.photoURL!)
-                    : AssetImage('assets/default_avatar.png')) as ImageProvider,
+                    : const AssetImage('assets/default_avatar.png'))
+                as ImageProvider,
               ),
             ),
             const SizedBox(height: 8),

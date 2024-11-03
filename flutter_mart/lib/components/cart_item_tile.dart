@@ -47,27 +47,39 @@ class CartItemTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w500)),
+                  Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                  ),
                   Text('Price: \$${price.toStringAsFixed(2)}'),
                   Text('Quantity: x$quantity', style: const TextStyle(color: Colors.grey)),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: onDecreaseQuantity,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: onIncreaseQuantity,
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: onRemove,
+            Column(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove, size: 20),
+                      onPressed: onDecreaseQuantity,
+                    ),
+                    Text('$quantity'),
+                    IconButton(
+                      icon: const Icon(Icons.add, size: 20),
+                      onPressed: onIncreaseQuantity,
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: onRemove,
+                  iconSize: 20,
+                ),
+              ],
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:elegant_notification/elegant_notification.dart';
 import '../models/order.dart';
 import '../services/order_service.dart';
 
@@ -34,9 +35,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     setState(() {
       _selectedStatus = newStatus;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Order status updated to $newStatus")),
-    );
+    // Show success notification using ElegantNotification
+    ElegantNotification.success(
+      title: const Text("Success"),
+      description: Text("Order status updated to $newStatus"),
+    ).show(context);
   }
 
   @override

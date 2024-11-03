@@ -1,6 +1,7 @@
-// lib/screens/change_password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elegant_notification/elegant_notification.dart';
+import 'package:elegant_notification/resources/stacked_options.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
@@ -16,21 +17,44 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   Future<void> _changePassword() async {
     try {
-      // Reauthenticate user before updating password
       final user = _auth.currentUser;
       final cred = EmailAuthProvider.credential(
           email: user!.email!, password: _currentPasswordController.text);
+
+      // Reauthenticate user before updating password
       await user.reauthenticateWithCredential(cred);
 
       // Update password
       await user.updatePassword(_newPasswordController.text);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password updated successfully")),
-      );
+
+      // Show success notification
+      ElegantNotification.success(
+        width: 360,
+        isDismissable: true,
+        stackedOptions: StackedOptions(
+          key: 'top',
+          type: StackedType.same,
+          itemOffset: const Offset(-5, -5),
+        ),
+        title: const Text('Password Updated'),
+        description: const Text('Your password was updated successfully.'),
+        onDismiss: () {
+          // Additional actions upon dismissal if needed
+        },
+      ).show(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating password: $e")),
-      );
+      // Show error notification
+      ElegantNotification.error(
+        width: 360,
+        isDismissable: true,
+        stackedOptions: StackedOptions(
+          key: 'topRight',
+          type: StackedType.below,
+          itemOffset: const Offset(0, 5),
+        ),
+        title: const Text('Error'),
+        description: Text("Error updating password: $e"),
+      ).show(context);
     }
   }
 
