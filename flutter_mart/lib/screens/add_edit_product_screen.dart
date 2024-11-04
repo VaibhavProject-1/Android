@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart'; // For input formatters
 import '../models/product.dart';
 import '../providers/product_provider.dart';
 import 'dart:io';
@@ -17,9 +18,12 @@ class AddEditProductScreen extends StatefulWidget {
 
 class _AddEditProductScreenState extends State<AddEditProductScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _description, _category;
-  late double _price, _rating;
-  late int _stock;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _stockController = TextEditingController();
+  final TextEditingController _ratingController = TextEditingController();
   final List<String> _images = [];
   final Map<String, List<String>> _variants = {};
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -29,21 +33,14 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   void initState() {
     super.initState();
     if (widget.product != null) {
-      _name = widget.product!.name;
-      _description = widget.product!.description;
-      _price = widget.product!.price;
-      _category = widget.product!.category;
-      _stock = widget.product!.stock;
-      _rating = widget.product!.rating;
+      _nameController.text = widget.product!.name;
+      _descriptionController.text = widget.product!.description;
+      _priceController.text = widget.product!.price.toString();
+      _categoryController.text = widget.product!.category;
+      _stockController.text = widget.product!.stock.toString();
+      _ratingController.text = widget.product!.rating.toString();
       _images.addAll(widget.product!.images);
       _variants.addAll(widget.product!.variants);
-    } else {
-      _name = '';
-      _description = '';
-      _price = 0.0;
-      _category = '';
-      _stock = 0;
-      _rating = 0.0;
     }
   }
 
@@ -56,7 +53,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       final String downloadUrl = await uploadTask.ref.getDownloadURL();
 
       setState(() {
-        _images.add(downloadUrl); // Store the image URL in the product data
+        _images.add(downloadUrl);
       });
     }
   }
@@ -112,19 +109,18 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
 
   Future<void> _saveProduct() async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
       final product = Product(
         id: widget.product?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _name,
-        description: _description,
-        price: _price,
+        name: _nameController.text,
+        description: _descriptionController.text,
+        price: double.tryParse(_priceController.text) ?? 0.0,
         images: _images,
         variants: _variants,
-        category: _category,
-        stock: _stock,
-        rating: _rating,
+        category: _categoryController.text,
+        stock: int.tryParse(_stockController.text) ?? 0,
+        rating: double.tryParse(_ratingController.text) ?? 0.0,
       );
 
       if (widget.product == null) {
@@ -148,37 +144,94 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           child: ListView(
             children: [
               TextFormField(
-                initialValue: _name,
-                decoration: const InputDecoration(labelText: 'Product Name'),
-                onSaved: (value) => _name = value!,
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  hintText: 'e.g., iPhone 13',
+                  labelText: 'Product Name',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Product name is required';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
-                initialValue: _description,
-                decoration: const InputDecoration(labelText: 'Description'),
-                onSaved: (value) => _description = value!,
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  hintText: 'e.g., Latest model with improved battery',
+                  labelText: 'Description',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Description is required';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
-                initialValue: _price.toString(),
+                controller: _priceController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))],
+                decoration: const InputDecoration(
+                  hintText: 'e.g., 999.99',
+                  labelText: 'Price',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Price is required';
+                  } else if (double.tryParse(value) == null) {
+                    return 'Enter a valid price';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _categoryController,
+                decoration: const InputDecoration(
+                  hintText: 'e.g., Electronics',
+                  labelText: 'Category',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Category is required';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _stockController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Price'),
-                onSaved: (value) => _price = double.parse(value!),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  hintText: 'e.g., 50',
+                  labelText: 'Stock Quantity',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Stock quantity is required';
+                  } else if (int.tryParse(value) == null) {
+                    return 'Enter a valid stock quantity';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
-                initialValue: _category,
-                decoration: const InputDecoration(labelText: 'Category'),
-                onSaved: (value) => _category = value!,
-              ),
-              TextFormField(
-                initialValue: _stock.toString(),
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Stock Quantity'),
-                onSaved: (value) => _stock = int.parse(value!),
-              ),
-              TextFormField(
-                initialValue: _rating.toString(),
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Rating'),
-                onSaved: (value) => _rating = double.parse(value!),
+                controller: _ratingController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))],
+                decoration: const InputDecoration(
+                  hintText: 'e.g., 4.5',
+                  labelText: 'Rating',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Rating is required';
+                  } else if (double.tryParse(value) == null) {
+                    return 'Enter a valid rating';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               const Text('Images'),

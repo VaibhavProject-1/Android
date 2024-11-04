@@ -3,9 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:elegant_notification/elegant_notification.dart'; // Import ElegantNotification
+import 'package:elegant_notification/elegant_notification.dart';
+import 'package:flutter/services.dart';
+import '../components/cart_item_tile.dart';
 import '../providers/cart_provider.dart';
-import '../components/cart/cart_item.dart';
 import '../components/subtotal_display.dart';
 import '../components/total_display.dart';
 import '../components/payment_button.dart';
@@ -25,6 +26,8 @@ class _CartScreenState extends State<CartScreen> {
   final OrderService _orderService = OrderService();
   Map<String, String>? selectedAddress;
   String? contactPhone;
+  final TextEditingController _couponController = TextEditingController();
+  double discountAmount = 0.0;
 
   @override
   void initState() {
@@ -33,9 +36,17 @@ class _CartScreenState extends State<CartScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-
-    // Check for saved addresses on load
     _checkForSavedAddresses();
+
+    // Listen for changes in the cart provider to reset discount if necessary
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    cartProvider.addListener(() {
+      if (cartProvider.totalPrice < 200) {
+        setState(() {
+          discountAmount = 0.0; // Reset discount if total is below ₹200
+        });
+      }
+    });
   }
 
   Future<void> _checkForSavedAddresses() async {
@@ -75,7 +86,7 @@ class _CartScreenState extends State<CartScreen> {
                   title: const Text("Add New Address"),
                   leading: const Icon(Icons.add),
                   onTap: () {
-                    Navigator.pop(context); // Close the modal
+                    Navigator.pop(context);
                     _openAddressForm();
                   },
                 ),
@@ -86,7 +97,8 @@ class _CartScreenState extends State<CartScreen> {
                       final address = snapshot.docs[index];
                       return ListTile(
                         title: Text("${address['street']}, ${address['city']}"),
-                        subtitle: Text("${address['state']} - ${address['zip']}"),
+                        subtitle: Text(
+                            "${address['state']} - ${address['zip']}"),
                         onTap: () {
                           setState(() {
                             selectedAddress = {
@@ -96,7 +108,7 @@ class _CartScreenState extends State<CartScreen> {
                               'zip': address['zip'] as String,
                             };
                           });
-                          Navigator.pop(context); // Close the modal
+                          Navigator.pop(context);
                         },
                       );
                     },
@@ -115,6 +127,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<void> _openAddressForm() async {
+    final _formKey = GlobalKey<FormState>();
     final TextEditingController streetController = TextEditingController();
     final TextEditingController cityController = TextEditingController();
     final TextEditingController stateController = TextEditingController();
@@ -125,14 +138,69 @@ class _CartScreenState extends State<CartScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Add New Address"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: streetController, decoration: const InputDecoration(labelText: 'Street')),
-              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-              TextField(controller: stateController, decoration: const InputDecoration(labelText: 'State')),
-              TextField(controller: zipController, decoration: const InputDecoration(labelText: 'ZIP Code')),
-            ],
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: streetController,
+                  decoration: const InputDecoration(labelText: 'Street'),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Street is required';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: cityController,
+                  decoration: const InputDecoration(labelText: 'City'),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  ],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'City is required';
+                    }
+                    if (RegExp(r'[0-9]').hasMatch(value)) {
+                      return 'City should not contain numbers';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: stateController,
+                  decoration: const InputDecoration(labelText: 'State'),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  ],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'State is required';
+                    }
+                    if (RegExp(r'[0-9]').hasMatch(value)) {
+                      return 'State should not contain numbers';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: zipController,
+                  decoration: const InputDecoration(labelText: 'ZIP Code'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'ZIP Code is required';
+                    } else if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+                      return 'ZIP Code must be 6 digits';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -141,29 +209,31 @@ class _CartScreenState extends State<CartScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final newAddress = {
-                  'street': streetController.text,
-                  'city': cityController.text,
-                  'state': stateController.text,
-                  'zip': zipController.text,
-                };
+                if (_formKey.currentState!.validate()) {
+                  final newAddress = {
+                    'street': streetController.text,
+                    'city': cityController.text,
+                    'state': stateController.text,
+                    'zip': zipController.text,
+                  };
 
-                final userId = FirebaseAuth.instance.currentUser!.uid;
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(userId)
-                    .collection('addresses')
-                    .add(newAddress);
+                  final userId = FirebaseAuth.instance.currentUser!.uid;
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .collection('addresses')
+                      .add(newAddress);
 
-                setState(() {
-                  selectedAddress = newAddress;
-                });
+                  setState(() {
+                    selectedAddress = newAddress;
+                  });
 
-                Navigator.of(context).pop();
-                ElegantNotification.success(
-                  title: const Text("Address Added"),
-                  description: const Text("New address added successfully."),
-                ).show(context);
+                  Navigator.of(context).pop();
+                  ElegantNotification.success(
+                    title: const Text("Address Added"),
+                    description: const Text("New address added successfully."),
+                  ).show(context);
+                }
               },
               child: const Text("Save"),
             ),
@@ -174,17 +244,31 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<void> _promptForPhone() async {
-    final TextEditingController phoneController = TextEditingController(text: contactPhone);
+    final TextEditingController phoneController = TextEditingController(
+        text: contactPhone);
+    final _phoneFormKey = GlobalKey<FormState>();
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("Enter Contact Phone"),
-          content: TextField(
-            controller: phoneController,
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: "Phone Number"),
+          content: Form(
+            key: _phoneFormKey,
+            child: TextFormField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(labelText: "Phone Number"),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Phone number is required';
+                } else if (!RegExp(r'^\d{10}$').hasMatch(value)) {
+                  return 'Phone number must be 10 digits';
+                }
+                return null;
+              },
+            ),
           ),
           actions: [
             TextButton(
@@ -193,14 +277,17 @@ class _CartScreenState extends State<CartScreen> {
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  contactPhone = phoneController.text;
-                });
-                Navigator.pop(context);
-                ElegantNotification.success(
-                  title: const Text("Phone Number Saved"),
-                  description: const Text("Contact phone number has been updated."),
-                ).show(context);
+                if (_phoneFormKey.currentState!.validate()) {
+                  setState(() {
+                    contactPhone = phoneController.text;
+                  });
+                  Navigator.pop(context);
+                  ElegantNotification.success(
+                    title: const Text("Phone Number Saved"),
+                    description: const Text(
+                        "Contact phone number has been updated."),
+                  ).show(context);
+                }
               },
               child: const Text("Save"),
             ),
@@ -208,6 +295,35 @@ class _CartScreenState extends State<CartScreen> {
         );
       },
     );
+  }
+
+  void _applyCoupon() {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    if (_couponController.text.trim() == "DISCOUNT10") {
+      if(cartProvider.totalPrice >= 200){
+        setState(() {
+          discountAmount = 10.0;
+        });
+        ElegantNotification.success(
+          title: const Text("Coupon Applied"),
+          description: const Text("Discount of ₹10 applied to your order."),
+        ).show(context);
+      } else {
+        // If the total drops below ₹200 after removing items, reset discount
+        setState(() {
+          discountAmount = 0.0;
+        });
+        ElegantNotification.error(
+          title: const Text("Invalid Coupon"),
+          description: const Text("The coupon code is invalid."),
+        ).show(context);
+      }
+    } else {
+      ElegantNotification.error(
+        title: const Text("Invalid Coupon"),
+        description: const Text("The coupon code is invalid."),
+      ).show(context);
+    }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
@@ -219,7 +335,7 @@ class _CartScreenState extends State<CartScreen> {
         orderId: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: user.uid,
         items: cartProvider.items,
-        totalAmount: cartProvider.totalPrice,
+        totalAmount: cartProvider.totalPrice - discountAmount,
         paymentId: response.paymentId!,
         orderDate: DateTime.now(),
         paymentStatus: 'completed',
@@ -235,13 +351,15 @@ class _CartScreenState extends State<CartScreen> {
     } else {
       ElegantNotification.error(
         title: const Text("Incomplete Information"),
-        description: const Text("Please select an address and provide a contact phone number before proceeding."),
+        description: const Text(
+            "Please select an address and provide a contact phone number before proceeding."),
       ).show(context);
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    showPaymentErrorDialog(context, response.code.toString(), response.message!);
+    showPaymentErrorDialog(
+        context, response.code.toString(), response.message!);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
@@ -256,8 +374,8 @@ class _CartScreenState extends State<CartScreen> {
       ElegantNotification.info(
         title: const Text("Address Required"),
         description: const Text("Please select an address before proceeding."),
-        background: Colors.orangeAccent.shade200, // Custom color for warning indication
-        icon: const Icon(Icons.warning, color: Colors.white), // Warning icon
+        background: Colors.orangeAccent.shade200,
+        icon: const Icon(Icons.warning, color: Colors.white),
       ).show(context);
       return;
     }
@@ -269,7 +387,7 @@ class _CartScreenState extends State<CartScreen> {
 
     var options = {
       'key': 'rzp_test_X7XIYABuIGXSFd',
-      'amount': (amount * 100).toInt(),
+      'amount': ((amount - discountAmount) * 100).toInt(),
       'name': 'FlutterMart',
       'description': 'Payment for items in cart',
       'prefill': {'contact': contactPhone, 'email': 'test@razorpay.com'},
@@ -282,64 +400,89 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final subtotal = cartProvider.totalPrice;
-    const deliveryCharge = 1.00;
-    final total = subtotal + deliveryCharge;
+    const deliveryCharge = 30.00;
+    final total = subtotal + deliveryCharge - discountAmount;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Your Cart')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: cartProvider.items.map((item) {
-                  return CartItem(
-                    imageUrl: item.imageUrl,
-                    name: "${item.name} - ${item.variant}",
-                    price: item.price,
-                    quantity: 'x${item.quantity}',
-                  );
-                }).toList(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 400, // Set fixed height to prevent overflow issues
+                child: ListView(
+                  shrinkWrap: true,
+                  children: cartProvider.items.map((item) {
+                    return CartItemTile(
+                      imageUrl: item.imageUrl,
+                      name: "${item.name} - ${item.variant}",
+                      price: item.price,
+                      quantity: item.quantity,
+                      onIncreaseQuantity: () {
+                        cartProvider.updateItemQuantity(item.productId, item.quantity + 1);
+                      },
+                      onDecreaseQuantity: () {
+                        if (item.quantity > 1) {
+                          cartProvider.updateItemQuantity(item.productId, item.quantity - 1);
+                        } else {
+                          cartProvider.removeItem(item.productId);
+                        }
+                      },
+                      onRemove: () {
+                        cartProvider.removeItem(item.productId);
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: Text(
-                selectedAddress != null
-                    ? "Shipping to: ${selectedAddress!['street']}, ${selectedAddress!['city']}"
-                    : "No Address Selected",
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(
+                  selectedAddress != null
+                      ? "Shipping to: ${selectedAddress!['street']}, ${selectedAddress!['city']}"
+                      : "No Address Selected",
+                ),
+                subtitle: Text(
+                  selectedAddress != null
+                      ? "${selectedAddress!['state']} - ${selectedAddress!['zip']}"
+                      : "Please select or add a shipping address",
+                ),
+                trailing: TextButton(
+                  onPressed: _selectAddress,
+                  child: const Text("Select Address"),
+                ),
               ),
-              subtitle: Text(
-                selectedAddress != null
-                    ? "${selectedAddress!['state']} - ${selectedAddress!['zip']}"
-                    : "Please select or add a shipping address",
+              ListTile(
+                title: Text("Contact Phone"),
+                subtitle: Text(contactPhone ?? "Not Set"),
+                trailing: TextButton(
+                  onPressed: _promptForPhone,
+                  child: const Text("Enter Phone"),
+                ),
               ),
-              trailing: TextButton(
-                onPressed: _selectAddress,
-                child: const Text("Select Address"),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _couponController,
+                decoration: const InputDecoration(labelText: 'Enter Coupon Code'),
               ),
-            ),
-            ListTile(
-              title: Text("Contact Phone"),
-              subtitle: Text(contactPhone ?? "Not Set"),
-              trailing: TextButton(
-                onPressed: _promptForPhone,
-                child: const Text("Enter Phone"),
+              TextButton(
+                onPressed: _applyCoupon,
+                child: const Text("Apply Coupon"),
               ),
-            ),
-            const SizedBox(height: 16),
-            SubtotalDisplay(subtotal: subtotal, deliveryCharge: deliveryCharge),
-            const Divider(thickness: 1, height: 30),
-            TotalDisplay(total: total),
-            const SizedBox(height: 24),
-            PaymentButton(onPressed: () => openCheckout(total)),
-          ],
+              SubtotalDisplay(subtotal: subtotal, deliveryCharge: deliveryCharge),
+              const Divider(thickness: 1, height: 30),
+              TotalDisplay(total: total),
+              const SizedBox(height: 24),
+              PaymentButton(onPressed: () => openCheckout(total)),
+            ],
+          ),
         ),
       ),
     );

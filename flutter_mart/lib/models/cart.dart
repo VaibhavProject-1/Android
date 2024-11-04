@@ -2,7 +2,7 @@ class CartItem {
   final String productId;
   final String name;       // Product name
   final String imageUrl;   // Image URL for display
-  final int quantity;      // Quantity of the item
+  int quantity;      // Quantity of the item
   final double price;      // Price per unit
   final Map<String, String> variant; // Selected variant options
 

@@ -1,3 +1,4 @@
+// lib/components/cart/cart_item_tile.dart
 import 'package:flutter/material.dart';
 
 class CartItemTile extends StatelessWidget {
@@ -51,7 +52,7 @@ class CartItemTile extends StatelessWidget {
                     name,
                     style: const TextStyle(fontWeight: FontWeight.w500),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text('Price: \$${price.toStringAsFixed(2)}'),
                   Text('Quantity: x$quantity', style: const TextStyle(color: Colors.grey)),

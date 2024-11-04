@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 import '../models/product.dart';
 import '../providers/product_provider.dart';
 import 'dart:io';
@@ -76,36 +77,36 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
                         ),
                         const SizedBox(height: 10),
                         _buildTextField(
-                          initialValue: _name,
                           label: 'Product Name',
+                          hintText: 'e.g., iPhone 13',
                           onSaved: (value) => _name = value!,
                         ),
                         _buildTextField(
-                          initialValue: _description,
                           label: 'Description',
+                          hintText: 'e.g., Latest model with improved battery',
                           onSaved: (value) => _description = value!,
                         ),
                         _buildTextField(
-                          initialValue: _price.toString(),
                           label: 'Price',
-                          isNumber: true,
+                          hintText: 'e.g., 999.99',
+                          isDecimal: true,
                           onSaved: (value) => _price = double.tryParse(value!) ?? 0.0,
                         ),
                         _buildTextField(
-                          initialValue: _category,
                           label: 'Category',
+                          hintText: 'e.g., Electronics',
                           onSaved: (value) => _category = value!,
                         ),
                         _buildTextField(
-                          initialValue: _stock.toString(),
                           label: 'Stock Quantity',
-                          isNumber: true,
+                          hintText: 'e.g., 50',
+                          isInteger: true,
                           onSaved: (value) => _stock = int.tryParse(value!) ?? 0,
                         ),
                         _buildTextField(
-                          initialValue: _rating.toString(),
                           label: 'Rating',
-                          isNumber: true,
+                          hintText: 'e.g., 4.5',
+                          isDecimal: true,
                           onSaved: (value) => _rating = double.tryParse(value!) ?? 0.0,
                         ),
                         const SizedBox(height: 10),
@@ -137,15 +138,23 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
   }
 
   Widget _buildTextField({
-    required String initialValue,
     required String label,
+    required String hintText,
     required FormFieldSetter<String> onSaved,
-    bool isNumber = false,
+    bool isInteger = false,
+    bool isDecimal = false,
   }) {
     return TextFormField(
-      initialValue: initialValue,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(labelText: label),
+      keyboardType: isInteger || isDecimal ? TextInputType.number : TextInputType.text,
+      inputFormatters: isInteger
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : isDecimal
+          ? [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))]
+          : null,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hintText,
+      ),
       onSaved: onSaved,
       validator: (value) => value!.isEmpty ? 'Please enter a $label' : null,
     );
@@ -283,17 +292,6 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
     }
   }
 
-  Future<void> _deleteImagesFromFirebase() async {
-    for (String imageUrl in _imagesToRemove) {
-      try {
-        await _storage.refFromURL(imageUrl).delete();
-      } catch (e) {
-        print('Error deleting image: $e');
-      }
-    }
-    _imagesToRemove.clear();
-  }
-
   Future<void> _saveProduct(Product? existingProduct) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -317,7 +315,6 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
         await productProvider.updateProduct(product);
       }
 
-      await _deleteImagesFromFirebase();
       Navigator.pop(context);
     }
   }

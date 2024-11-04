@@ -1,5 +1,5 @@
-//lib/screens/manage_addresses_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for FilteringTextInputFormatter
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,6 +12,8 @@ class ManageAddressesScreen extends StatefulWidget {
 
 class _ManageAddressesScreenState extends State<ManageAddressesScreen> {
   void _openAddressForm({Map<String, dynamic>? existingAddress, String? addressId}) {
+    final _formKey = GlobalKey<FormState>();
+
     final TextEditingController streetController = TextEditingController(text: existingAddress?['street'] ?? '');
     final TextEditingController cityController = TextEditingController(text: existingAddress?['city'] ?? '');
     final TextEditingController stateController = TextEditingController(text: existingAddress?['state'] ?? '');
@@ -22,14 +24,63 @@ class _ManageAddressesScreenState extends State<ManageAddressesScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text(existingAddress != null ? "Edit Address" : "Add Address"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: streetController, decoration: const InputDecoration(labelText: 'Street')),
-              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-              TextField(controller: stateController, decoration: const InputDecoration(labelText: 'State')),
-              TextField(controller: zipController, decoration: const InputDecoration(labelText: 'ZIP Code')),
-            ],
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: streetController,
+                  decoration: const InputDecoration(labelText: 'Street'),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Street is required';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: cityController,
+                  decoration: const InputDecoration(labelText: 'City'),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z\s]*$'))],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'City is required';
+                    } else if (RegExp(r'\d').hasMatch(value)) {
+                      return 'City cannot contain numbers';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: stateController,
+                  decoration: const InputDecoration(labelText: 'State'),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z\s]*$'))],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'State is required';
+                    } else if (RegExp(r'\d').hasMatch(value)) {
+                      return 'State cannot contain numbers';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: zipController,
+                  decoration: const InputDecoration(labelText: 'ZIP Code'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Ensure numeric-only input
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'ZIP Code is required';
+                    } else if (!RegExp(r'^\d+$').hasMatch(value)) {
+                      return 'ZIP Code must be numeric';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -38,33 +89,33 @@ class _ManageAddressesScreenState extends State<ManageAddressesScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final newAddress = {
-                  'street': streetController.text,
-                  'city': cityController.text,
-                  'state': stateController.text,
-                  'zip': zipController.text,
-                  'isDefault': existingAddress?['isDefault'] ?? false,
-                };
+                if (_formKey.currentState!.validate()) {
+                  final newAddress = {
+                    'street': streetController.text,
+                    'city': cityController.text,
+                    'state': stateController.text,
+                    'zip': zipController.text,
+                    'isDefault': existingAddress?['isDefault'] ?? false,
+                  };
 
-                final userId = FirebaseAuth.instance.currentUser!.uid;
+                  final userId = FirebaseAuth.instance.currentUser!.uid;
 
-                if (addressId != null) {
-                  // Update existing address
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .collection('addresses')
-                      .doc(addressId)
-                      .update(newAddress);
-                } else {
-                  // Add new address
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .collection('addresses')
-                      .add(newAddress);
+                  if (addressId != null) {
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(userId)
+                        .collection('addresses')
+                        .doc(addressId)
+                        .update(newAddress);
+                  } else {
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(userId)
+                        .collection('addresses')
+                        .add(newAddress);
+                  }
+                  Navigator.of(context).pop();
                 }
-                Navigator.of(context).pop();
               },
               child: const Text("Save"),
             ),
@@ -73,7 +124,6 @@ class _ManageAddressesScreenState extends State<ManageAddressesScreen> {
       },
     );
   }
-
 
   Future<void> _setDefaultAddress(String addressId) async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
@@ -89,7 +139,7 @@ class _ManageAddressesScreenState extends State<ManageAddressesScreen> {
       batch.update(address.reference, {'isDefault': address.id == addressId});
     }
 
-    await batch.commit(); // Perform all updates in a single batch write
+    await batch.commit();
   }
 
   @override
