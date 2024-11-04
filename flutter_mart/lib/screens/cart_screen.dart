@@ -310,9 +310,7 @@ class _CartScreenState extends State<CartScreen> {
         ).show(context);
       } else {
         // If the total drops below ₹200 after removing items, reset discount
-        setState(() {
-          discountAmount = 0.0;
-        });
+
         ElegantNotification.error(
           title: const Text("Invalid Coupon"),
           description: const Text("The coupon code is invalid."),
